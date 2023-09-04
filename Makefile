@@ -1,7 +1,7 @@
-$(VERBOSE).SILENT:
+(VERBOSE).SILENT:
 ############################# Main targets #############################
 # Install dependencies.
-install: buf-install
+install: buf-install grpc-install
 
 # Run all linters and compile proto files.
 proto: copy-api-cloud-api grpc
@@ -25,7 +25,7 @@ $(PROTO_OUT):
 ##### Copy the proto files from the api-cloud repo #####
 copy-api-cloud-api:
 	@printf $(COLOR) "Copy api-cloud..."
-	rm -rf $(PROTO_ROOT)
+	rm -rf $(PROTO_ROOT)/temporal/api
 	mkdir -p $(PROTO_ROOT)/temporal/api
 	git clone git@github.com:temporalio/api-cloud.git --depth=1 --branch abhinav/userMgmt --single-branch $(PROTO_ROOT)/api-cloud-tmp
 	mv -f $(PROTO_ROOT)/api-cloud-tmp/temporal/api/cloud $(PROTO_ROOT)/temporal/api
@@ -45,6 +45,11 @@ fix-proto-generated-go-path:
 buf-install:
 	printf $(COLOR) "Install/update buf..."
 	go install github.com/bufbuild/buf/cmd/buf@v1.25.1
+
+grpc-install:
+	printf $(COLOR) "Install/update gRPC plugins..."
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 ##### Clean #####
 clean:

@@ -3,3 +3,6 @@ plugins:
   - plugin: go
     out: protogen
     opt: paths=source_relative
+  - plugin: go-grpc
+    out: protogen
+    opt: paths=source_relative
