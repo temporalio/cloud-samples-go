@@ -12,13 +12,14 @@ import (
 //go:generate mockgen -source workflows.go -destination workflows_mock.go -package workflow
 
 const (
-	workflowPrefix            = "cloud-operations-workflows."
-	GetUserWorkflowType       = workflowPrefix + "get-user"
-	GetUsersWorkflowType      = workflowPrefix + "get-users"
-	CreateUserWorkflowType    = workflowPrefix + "create-user"
-	UpdateUserWorkflowType    = workflowPrefix + "update-user"
-	DeleteUserWorkflowType    = workflowPrefix + "delete-user"
-	ReconcileUserWorkflowType = workflowPrefix + "reconcile-user"
+	workflowPrefix             = "cloud-operations-workflows."
+	GetUserWorkflowType        = workflowPrefix + "get-user"
+	GetUsersWorkflowType       = workflowPrefix + "get-users"
+	CreateUserWorkflowType     = workflowPrefix + "create-user"
+	UpdateUserWorkflowType     = workflowPrefix + "update-user"
+	DeleteUserWorkflowType     = workflowPrefix + "delete-user"
+	ReconcileUserWorkflowType  = workflowPrefix + "reconcile-user"
+	ReconcileUsersWorkflowType = workflowPrefix + "reconcile-users"
 )
 
 type (
@@ -31,6 +32,7 @@ type (
 		UpdateUser(ctx workflow.Context, in *cloudservice.UpdateUserRequest) (*cloudservice.UpdateUserResponse, error)
 		DeleteUser(ctx workflow.Context, in *cloudservice.DeleteUserRequest) (*cloudservice.DeleteUserResponse, error)
 		ReconcileUser(ctx workflow.Context, in *ReconcileUserInput) (*ReconcileUserOutput, error)
+		ReconcileUsers(ctx workflow.Context, in *ReconcileUsersInput) (*ReconcileUsersOutput, error)
 	}
 
 	workflows struct{}
@@ -47,12 +49,13 @@ func NewActivities(conn grpc.ClientConnInterface) *activities.Activities {
 func Register(w worker.Worker, wf Workflows, a *activities.Activities) {
 	// Register the workflows that we want to be able to use.
 	for k, v := range map[string]any{
-		GetUserWorkflowType:       wf.GetUser,
-		GetUsersWorkflowType:      wf.GetUsers,
-		CreateUserWorkflowType:    wf.CreateUser,
-		UpdateUserWorkflowType:    wf.UpdateUser,
-		DeleteUserWorkflowType:    wf.DeleteUser,
-		ReconcileUserWorkflowType: wf.ReconcileUser,
+		GetUserWorkflowType:        wf.GetUser,
+		GetUsersWorkflowType:       wf.GetUsers,
+		CreateUserWorkflowType:     wf.CreateUser,
+		UpdateUserWorkflowType:     wf.UpdateUser,
+		DeleteUserWorkflowType:     wf.DeleteUser,
+		ReconcileUserWorkflowType:  wf.ReconcileUser,
+		ReconcileUsersWorkflowType: wf.ReconcileUsers,
 	} {
 		w.RegisterWorkflowWithOptions(v, workflow.RegisterOptions{Name: k})
 	}

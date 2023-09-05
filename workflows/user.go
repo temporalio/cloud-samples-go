@@ -16,21 +16,32 @@ import (
 const (
 	userUpdateTimeout = 10 * time.Minute
 
-	CreatedReconcileUserStatus   = ReconcileUserStatus("CREATED")
-	UpdatedReconcileUserStatus   = ReconcileUserStatus("UPDATED")
-	DeletedReconcileUserStatus   = ReconcileUserStatus("DELETED")
-	UnchangedReconcileUserStatus = ReconcileUserStatus("UNCHANGED")
+	CreatedReconcileResult     = "CREATED"
+	UpdatedReconcileResult     = "UPDATED"
+	DeletedReconcileResult     = "DELETED"
+	UnchangedReconcileResult   = "UNCHANGED"
+	UnaccountedReconcileResult = "UNACCOUNTED"
 )
 
 type (
-	ReconcileUserStatus string
+	ReconcileUserResult struct {
+		User   *user.User `json:"user"`
+		Result string     `json:"result"`
+	}
 
 	ReconcileUserInput struct {
 		Spec *user.UserSpec `required:"true" json:"spec"`
 	}
 	ReconcileUserOutput struct {
-		User   *user.User
-		Status ReconcileUserStatus
+		Result ReconcileUserResult `json:"result"`
+	}
+
+	ReconcileUsersInput struct {
+		Specs             []*user.UserSpec `required:"true" json:"specs"`
+		DeleteUnaccounted bool             `json:"delete_unaccounted"`
+	}
+	ReconcileUsersOutput struct {
+		Results []*ReconcileUserResult `json:"results"`
 	}
 )
 
@@ -76,11 +87,11 @@ func (w *workflows) DeleteUser(ctx workflow.Context, in *cloudservice.DeleteUser
 	return activities.DeleteUser(withInfiniteRetryActivityOptions(ctx), in)
 }
 
-func (w *workflows) reconcileUser(ctx workflow.Context, spec *user.UserSpec, user *user.User) (*user.User, ReconcileUserStatus, error) {
+func (w *workflows) reconcileUser(ctx workflow.Context, spec *user.UserSpec, user *user.User) (*user.User, string, error) {
 	var (
 		userID         string
 		asyncOpID      string
-		reconileStatus ReconcileUserStatus
+		reconileStatus string
 	)
 	if user == nil {
 		// no user found, create one
@@ -88,11 +99,11 @@ func (w *workflows) reconcileUser(ctx workflow.Context, spec *user.UserSpec, use
 			Spec: spec,
 		})
 		if err != nil {
-			return nil, reconileStatus, err
+			return nil, "", err
 		}
 		userID = createResp.UserId
 		asyncOpID = createResp.AsyncOperation.Id
-		reconileStatus = CreatedReconcileUserStatus
+		reconileStatus = CreatedReconcileResult
 
 	} else if !proto.Equal(user.Spec, spec) {
 		// user found, and specs don't match,  update it
@@ -102,15 +113,15 @@ func (w *workflows) reconcileUser(ctx workflow.Context, spec *user.UserSpec, use
 			ResourceVersion: user.ResourceVersion,
 		})
 		if err != nil {
-			return nil, reconileStatus, err
+			return nil, "", err
 		}
 		userID = user.Id
 		asyncOpID = updateResp.AsyncOperation.Id
-		reconileStatus = UpdatedReconcileUserStatus
+		reconileStatus = UpdatedReconcileResult
 	} else {
 		// nothing to change, get the latest user and return
 		userID = user.Id
-		reconileStatus = UnchangedReconcileUserStatus
+		reconileStatus = UnchangedReconcileResult
 	}
 
 	if asyncOpID != "" {
@@ -120,14 +131,14 @@ func (w *workflows) reconcileUser(ctx workflow.Context, spec *user.UserSpec, use
 			Timeout:          userUpdateTimeout,
 		})
 		if err != nil {
-			return nil, reconileStatus, err
+			return nil, "", err
 		}
 	}
 	getResp, err := w.GetUser(ctx, &cloudservice.GetUserRequest{
 		UserId: userID,
 	})
 	if err != nil {
-		return nil, reconileStatus, err
+		return nil, "", err
 	}
 	return getResp.User, reconileStatus, nil
 }
@@ -146,7 +157,74 @@ func (w *workflows) ReconcileUser(ctx workflow.Context, in *ReconcileUserInput) 
 		return nil, err
 	}
 	return &ReconcileUserOutput{
-		User:   user,
-		Status: reconcileStatus,
+		Result: ReconcileUserResult{
+			User:   user,
+			Result: reconcileStatus,
+		},
 	}, nil
+}
+
+// Reconcile a user, create the user if one does not exist, or update the user if one does exist.
+func (w *workflows) ReconcileUsers(ctx workflow.Context, in *ReconcileUsersInput) (*ReconcileUsersOutput, error) {
+	if err := validator.ValidateStruct(in); err != nil {
+		return nil, fmt.Errorf("invalid input: %s", err)
+	}
+	var (
+		getUsersReq = &cloudservice.GetUsersRequest{}
+		users       = make(map[string]*user.User)
+		out         = &ReconcileUsersOutput{}
+	)
+	for {
+		resp, err := w.GetUsers(ctx, getUsersReq)
+		if err != nil {
+			return nil, err
+		}
+		for i := range resp.Users {
+			users[resp.Users[i].Spec.Email] = resp.Users[i]
+		}
+		if resp.NextPageToken == "" {
+			break
+		}
+		getUsersReq.PageToken = resp.NextPageToken
+	}
+	for i := range in.Specs {
+		var user *user.User
+		if u, ok := users[in.Specs[i].Email]; ok {
+			user = u
+		}
+		// reconcile the user
+		u, reconcileStatus, err := w.reconcileUser(ctx, in.Specs[i], user)
+		if err != nil {
+			return nil, err
+		}
+		out.Results = append(out.Results, &ReconcileUserResult{
+			User:   u,
+			Result: reconcileStatus,
+		})
+		// remove the reconciled users from the map
+		delete(users, in.Specs[i].Email)
+	}
+
+	// whats left in maps is only the unaccounted users
+	for _, u := range users {
+		if in.DeleteUnaccounted {
+			_, err := w.DeleteUser(ctx, &cloudservice.DeleteUserRequest{
+				UserId:          u.Id,
+				ResourceVersion: u.ResourceVersion,
+			})
+			if err != nil {
+				return nil, err
+			}
+			out.Results = append(out.Results, &ReconcileUserResult{
+				User:   u,
+				Result: DeletedReconcileResult,
+			})
+		} else {
+			out.Results = append(out.Results, &ReconcileUserResult{
+				User:   u,
+				Result: UnaccountedReconcileResult,
+			})
+		}
+	}
+	return out, nil
 }
