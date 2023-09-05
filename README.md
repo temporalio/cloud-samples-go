@@ -15,4 +15,4 @@ Currently supported workflows
 | `cloud-operations-workflows.reconcile-users`  |                            | Reconcile set of users. Creates the users that do not exist, otherwise updates the existing ones. Optionally can delete the users that are not unaccounted. |
 
 
-Refer the (demo)[demo] to learn how to build a temporal worker that can execute the cloud operations workflows.
+Refer the [demo](demo) to learn how to build a temporal worker that can execute the cloud operations workflows.
