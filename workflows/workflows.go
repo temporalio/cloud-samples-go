@@ -12,12 +12,13 @@ import (
 //go:generate mockgen -source workflows.go -destination workflows_mock.go -package workflow
 
 const (
-	workflowPrefix         = "cloud-operations-workflows."
-	GetUserWorkflowType    = workflowPrefix + "get-user"
-	GetUsersWorkflowType   = workflowPrefix + "get-users"
-	CreateUserWorkflowType = workflowPrefix + "create-user"
-	UpdateUserWorkflowType = workflowPrefix + "update-user"
-	DeleteUserWorkflowType = workflowPrefix + "delete-user"
+	workflowPrefix            = "cloud-operations-workflows."
+	GetUserWorkflowType       = workflowPrefix + "get-user"
+	GetUsersWorkflowType      = workflowPrefix + "get-users"
+	CreateUserWorkflowType    = workflowPrefix + "create-user"
+	UpdateUserWorkflowType    = workflowPrefix + "update-user"
+	DeleteUserWorkflowType    = workflowPrefix + "delete-user"
+	ReconcileUserWorkflowType = workflowPrefix + "reconcile-user"
 )
 
 type (
@@ -46,11 +47,12 @@ func NewActivities(conn grpc.ClientConnInterface) *activities.Activities {
 func Register(w worker.Worker, wf Workflows, a *activities.Activities) {
 	// Register the workflows that we want to be able to use.
 	for k, v := range map[string]any{
-		GetUserWorkflowType:    wf.GetUser,
-		GetUsersWorkflowType:   wf.GetUsers,
-		CreateUserWorkflowType: wf.CreateUser,
-		UpdateUserWorkflowType: wf.UpdateUser,
-		DeleteUserWorkflowType: wf.DeleteUser,
+		GetUserWorkflowType:       wf.GetUser,
+		GetUsersWorkflowType:      wf.GetUsers,
+		CreateUserWorkflowType:    wf.CreateUser,
+		UpdateUserWorkflowType:    wf.UpdateUser,
+		DeleteUserWorkflowType:    wf.DeleteUser,
+		ReconcileUserWorkflowType: wf.ReconcileUser,
 	} {
 		w.RegisterWorkflowWithOptions(v, workflow.RegisterOptions{Name: k})
 	}

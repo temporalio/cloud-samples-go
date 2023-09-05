@@ -36,7 +36,6 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("failed to create temporal worker: %+v", err))
 	}
-
 	conn, err := temporalcloud.NewConnectionWithAPIKey(
 		cfg.TemporalCloudAPIAddress,
 		cfg.AllowInsecure,
@@ -61,5 +60,5 @@ func newWorker(client client.Client) (worker.Worker, error) {
 		MaxConcurrentActivityTaskPollers: 10,
 		MaxConcurrentWorkflowTaskPollers: 10,
 	}
-	return worker.New(client, taskQueue, wo), nil
+	return worker.New(client, "demo", wo), nil
 }

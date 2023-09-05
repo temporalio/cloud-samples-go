@@ -26,7 +26,7 @@ type (
 	ReconcileUserStatus string
 
 	ReconcileUserInput struct {
-		Spec *user.UserSpec `required:"true"`
+		Spec *user.UserSpec `required:"true" json:"spec"`
 	}
 	ReconcileUserOutput struct {
 		User   *user.User
@@ -80,11 +80,13 @@ func (w *workflows) reconcileUser(ctx workflow.Context, spec *user.UserSpec, use
 	var (
 		userID         string
 		asyncOpID      string
-		reconileStatus = UnchangedReconcileUserStatus
+		reconileStatus ReconcileUserStatus
 	)
 	if user == nil {
 		// no user found, create one
-		createResp, err := w.CreateUser(ctx, &cloudservice.CreateUserRequest{})
+		createResp, err := w.CreateUser(ctx, &cloudservice.CreateUserRequest{
+			Spec: spec,
+		})
 		if err != nil {
 			return nil, reconileStatus, err
 		}
@@ -105,15 +107,21 @@ func (w *workflows) reconcileUser(ctx workflow.Context, spec *user.UserSpec, use
 		userID = user.Id
 		asyncOpID = updateResp.AsyncOperation.Id
 		reconileStatus = UpdatedReconcileUserStatus
+	} else {
+		// nothing to change, get the latest user and return
+		userID = user.Id
+		reconileStatus = UnchangedReconcileUserStatus
 	}
 
-	// wait for the operation to complete
-	_, err := w.WaitForAsyncOperation(ctx, &WaitForAsyncOperationInput{
-		AsyncOperationID: asyncOpID,
-		Timeout:          userUpdateTimeout,
-	})
-	if err != nil {
-		return nil, reconileStatus, err
+	if asyncOpID != "" {
+		// wait for the operation to complete
+		_, err := w.WaitForAsyncOperation(ctx, &WaitForAsyncOperationInput{
+			AsyncOperationID: asyncOpID,
+			Timeout:          userUpdateTimeout,
+		})
+		if err != nil {
+			return nil, reconileStatus, err
+		}
 	}
 	getResp, err := w.GetUser(ctx, &cloudservice.GetUserRequest{
 		UserId: userID,
