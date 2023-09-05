@@ -11,7 +11,7 @@ Currently supported workflows
 | `cloud-operations-workflows.create-user`      | `CloudService/CreateUser`  | Create a new user                                                                            |
 | `cloud-operations-workflows.update-user`      | `CloudService/UpdateUser`  | Update an existing user                                                                      |
 | `cloud-operations-workflows.delete-user`      | `CloudService/DeleteUser`  | Delete an existing user                                                                      |
-| `cloud-operations-workflows.reconcile-user`   | `CloudService/DeleteUser`  | Reconcile a user. Creates the user if one does not exist, otherwise updates the existing one |
+| `cloud-operations-workflows.reconcile-user`   |                            | Reconcile a user. Creates the user if one does not exist, otherwise updates the existing one |
 
 
 Refer the (demo)[demo] to learn how to build a temporal worker that can execute the cloud operations workflows.
