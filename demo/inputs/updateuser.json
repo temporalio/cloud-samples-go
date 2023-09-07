@@ -1,0 +1,23 @@
+{
+  "user_id": "11c8219f-3187-4a13-99a0-b095f9de90a2",
+  "resource_version": "e525404d-24ca-4fad-a0ed-5e61037ae63e",
+  "spec": {
+    "email": "abhinav.nekkanti@gmail.com",
+    "access": {
+      "account_access": {
+        "role": "Developer"
+      },
+      "namespace_accesses": {
+        "abhinavtest1.temporal-dev": {
+          "permission": "Write"
+        },
+        "alex-tideman-test.temporal-dev": {
+          "permission": "Admin"
+        },
+        "audit-logging-validate-0.temporal-dev": {
+          "permission": "Admin"
+        }
+      }
+    }
+  }
+}

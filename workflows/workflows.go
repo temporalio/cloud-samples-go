@@ -2,7 +2,7 @@ package workflows
 
 import (
 	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/cloudservice/v1"
-	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/user/v1"
+	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/identity/v1"
 	"github.com/temporalio/cloud-operations-workflows/workflows/activities"
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"
@@ -27,7 +27,7 @@ type (
 		// User Management
 		GetUser(ctx workflow.Context, in *cloudservice.GetUserRequest) (*cloudservice.GetUserResponse, error)
 		GetUsers(ctx workflow.Context, in *cloudservice.GetUsersRequest) (*cloudservice.GetUsersResponse, error)
-		GetUserWithEmail(ctx workflow.Context, email string) (*user.User, error)
+		GetUserWithEmail(ctx workflow.Context, email string) (*identity.User, error)
 		CreateUser(ctx workflow.Context, in *cloudservice.CreateUserRequest) (*cloudservice.CreateUserResponse, error)
 		UpdateUser(ctx workflow.Context, in *cloudservice.UpdateUserRequest) (*cloudservice.UpdateUserResponse, error)
 		DeleteUser(ctx workflow.Context, in *cloudservice.DeleteUserRequest) (*cloudservice.DeleteUserResponse, error)

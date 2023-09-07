@@ -7,23 +7,23 @@ import (
 )
 
 func (a *Activities) GetUser(ctx context.Context, in *cloudservice.GetUserRequest) (*cloudservice.GetUserResponse, error) {
-	return a.cloudserviceclient.GetUser(ctx, in)
+	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.GetUser)
 }
 
 func (a *Activities) GetUsers(ctx context.Context, in *cloudservice.GetUsersRequest) (*cloudservice.GetUsersResponse, error) {
-	return a.cloudserviceclient.GetUsers(ctx, in)
+	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.GetUsers)
 }
 
 func (a *Activities) CreateUser(ctx context.Context, in *cloudservice.CreateUserRequest) (*cloudservice.CreateUserResponse, error) {
-	return a.cloudserviceclient.CreateUser(ctx, in)
+	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.CreateUser)
 }
 
 func (a *Activities) UpdateUser(ctx context.Context, in *cloudservice.UpdateUserRequest) (*cloudservice.UpdateUserResponse, error) {
-	return a.cloudserviceclient.UpdateUser(ctx, in)
+	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.UpdateUser)
 }
 
 func (a *Activities) DeleteUser(ctx context.Context, in *cloudservice.DeleteUserRequest) (*cloudservice.DeleteUserResponse, error) {
-	return a.cloudserviceclient.DeleteUser(ctx, in)
+	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.DeleteUser)
 }
 
 var (

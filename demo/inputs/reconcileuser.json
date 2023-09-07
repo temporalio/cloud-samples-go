@@ -1,0 +1,22 @@
+{
+  "spec": {
+    "email": "abhinav.nekkanti@gmail.com",
+    "access": {
+      "account_access": {
+        "role": "Read"
+      },
+      "namespace_accesses": {
+        "abhinavtest1.temporal-dev": {
+          "permission": "Read"
+        },
+        "alex-tideman-test.temporal-dev": {
+          "permission": "Read"
+        },
+        "audit-logging-validate-0.temporal-dev": {
+          "permission": "Admin"
+        }
+      }
+    }
+  }
+}
+
