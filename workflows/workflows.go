@@ -34,7 +34,7 @@ type (
 		DeleteUser(ctx workflow.Context, in *cloudservice.DeleteUserRequest) (*cloudservice.DeleteUserResponse, error)
 		ReconcileUser(ctx workflow.Context, in *ReconcileUserInput) (*ReconcileUserOutput, error)
 		ReconcileUsers(ctx workflow.Context, in *ReconcileUsersInput) (*ReconcileUsersOutput, error)
-		//PeriodicReconcileUsers(ctx workflow.Context, in *PeriodicReconcileUsersInput) (*PeriodicReconcileUsersOutput, error)
+		PeriodicReconcileUsers(ctx workflow.Context, in *PeriodicReconcileUsersInput) (*PeriodicReconcileUsersOutput, error)
 	}
 
 	workflows struct{}
@@ -51,13 +51,14 @@ func NewActivities(conn grpc.ClientConnInterface) *activities.Activities {
 func Register(w worker.Worker, wf Workflows, a *activities.Activities) {
 	// Register the workflows that we want to be able to use.
 	for k, v := range map[string]any{
-		GetUserWorkflowType:        wf.GetUser,
-		GetUsersWorkflowType:       wf.GetUsers,
-		CreateUserWorkflowType:     wf.CreateUser,
-		UpdateUserWorkflowType:     wf.UpdateUser,
-		DeleteUserWorkflowType:     wf.DeleteUser,
-		ReconcileUserWorkflowType:  wf.ReconcileUser,
-		ReconcileUsersWorkflowType: wf.ReconcileUsers,
+		GetUserWorkflowType:                wf.GetUser,
+		GetUsersWorkflowType:               wf.GetUsers,
+		CreateUserWorkflowType:             wf.CreateUser,
+		UpdateUserWorkflowType:             wf.UpdateUser,
+		DeleteUserWorkflowType:             wf.DeleteUser,
+		ReconcileUserWorkflowType:          wf.ReconcileUser,
+		ReconcileUsersWorkflowType:         wf.ReconcileUsers,
+		PeriodicReconcileUsersWorkflowType: wf.PeriodicReconcileUsers,
 	} {
 		w.RegisterWorkflowWithOptions(v, workflow.RegisterOptions{Name: k})
 	}

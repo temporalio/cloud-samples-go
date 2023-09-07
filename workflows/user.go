@@ -44,6 +44,7 @@ type (
 		Results []*ReconcileUserResult `json:"results"`
 	}
 	PeriodicReconcileUsersInput struct {
+		FilePath string `required:"true" json:"file_path"`
 	}
 	PeriodicReconcileUsersOutput struct {
 	}
@@ -231,4 +232,24 @@ func (w *workflows) ReconcileUsers(ctx workflow.Context, in *ReconcileUsersInput
 		}
 	}
 	return out, nil
+}
+
+func (w *workflows) PeriodicReconcileUsers(ctx workflow.Context, in *PeriodicReconcileUsersInput) (*PeriodicReconcileUsersOutput, error) {
+	ao := workflow.ActivityOptions{
+		StartToCloseTimeout: time.Second * 10,
+	}
+	ctx = workflow.WithActivityOptions(ctx, ao)
+
+	for {
+		getUserSpecsFromFileReq := &activities.GetUserSpecsFromFileRequest{FilePath: in.FilePath}
+		getUserSpecsFromFileResp, err := activities.GetUserSpecs(ctx, getUserSpecsFromFileReq)
+		if err != nil {
+			workflow.GetLogger(ctx).Error("PeriodicReconcileUsers failed to get user specs from file", "error", err)
+		} else {
+			workflow.GetLogger(ctx).Info("PeriodicReconcileUsers got user specs from file", "userSpecs", getUserSpecsFromFileResp.Specs)
+		}
+
+		workflow.NewTimer(ctx, time.Second*10).Get(ctx, nil)
+	}
+
 }

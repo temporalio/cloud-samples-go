@@ -2,8 +2,21 @@ package activities
 
 import (
 	"context"
-
+	"encoding/json"
 	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/cloudservice/v1"
+	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/user/v1"
+	"go.temporal.io/sdk/activity"
+	"io"
+	"os"
+)
+
+type (
+	GetUserSpecsFromFileRequest struct {
+		FilePath string
+	}
+	GetUserSpecsFromFileResponse struct {
+		Specs []*user.UserSpec `json:"users"`
+	}
 )
 
 func (a *Activities) GetUser(ctx context.Context, in *cloudservice.GetUserRequest) (*cloudservice.GetUserResponse, error) {
@@ -26,10 +39,32 @@ func (a *Activities) DeleteUser(ctx context.Context, in *cloudservice.DeleteUser
 	return a.cloudserviceclient.DeleteUser(ctx, in)
 }
 
+func (a *Activities) GetUserSpecsFromFile(ctx context.Context, in *GetUserSpecsFromFileRequest) (*GetUserSpecsFromFileResponse, error) {
+	jsonFile, err := os.Open(in.FilePath)
+
+	if err != nil {
+		activity.GetLogger(ctx).Error("Error opening file", "error", err)
+		return nil, err
+	}
+	activity.GetLogger(ctx).Info("Successfully Opened file " + in.FilePath)
+	defer jsonFile.Close()
+
+	byteValue, err := io.ReadAll(jsonFile)
+	if err != nil {
+		activity.GetLogger(ctx).Error("Error reading file", "error", err)
+		return nil, err
+	}
+
+	var resp GetUserSpecsFromFileResponse
+	err = json.Unmarshal(byteValue, &resp)
+	return &resp, err
+}
+
 var (
-	GetUser    = executeActivityFn[*cloudservice.GetUserRequest, *cloudservice.GetUserResponse](activitiesPrefix + "GetUser")
-	GetUsers   = executeActivityFn[*cloudservice.GetUsersRequest, *cloudservice.GetUsersResponse](activitiesPrefix + "GetUsers")
-	CreateUser = executeActivityFn[*cloudservice.CreateUserRequest, *cloudservice.CreateUserResponse](activitiesPrefix + "CreateUser")
-	UpdateUser = executeActivityFn[*cloudservice.UpdateUserRequest, *cloudservice.UpdateUserResponse](activitiesPrefix + "UpdateUser")
-	DeleteUser = executeActivityFn[*cloudservice.DeleteUserRequest, *cloudservice.DeleteUserResponse](activitiesPrefix + "DeleteUser")
+	GetUser      = executeActivityFn[*cloudservice.GetUserRequest, *cloudservice.GetUserResponse](activitiesPrefix + "GetUser")
+	GetUsers     = executeActivityFn[*cloudservice.GetUsersRequest, *cloudservice.GetUsersResponse](activitiesPrefix + "GetUsers")
+	CreateUser   = executeActivityFn[*cloudservice.CreateUserRequest, *cloudservice.CreateUserResponse](activitiesPrefix + "CreateUser")
+	UpdateUser   = executeActivityFn[*cloudservice.UpdateUserRequest, *cloudservice.UpdateUserResponse](activitiesPrefix + "UpdateUser")
+	DeleteUser   = executeActivityFn[*cloudservice.DeleteUserRequest, *cloudservice.DeleteUserResponse](activitiesPrefix + "DeleteUser")
+	GetUserSpecs = executeActivityFn[*GetUserSpecsFromFileRequest, *GetUserSpecsFromFileResponse](activitiesPrefix + "GetUserSpecsFromFile")
 )
