@@ -1,45 +1,59 @@
 package main
 
 import (
+	"context"
+	"crypto/tls"
 	"fmt"
-
-	"github.com/caarlos0/env/v9"
+	"github.com/temporalio/cloud-operations-workflows/client/temporalcloud"
+	"github.com/temporalio/cloud-operations-workflows/workflows"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
-
-	"github.com/temporalio/cloud-operations-workflows/client/temporalcloud"
-	"github.com/temporalio/cloud-operations-workflows/internal/validator"
-	"github.com/temporalio/cloud-operations-workflows/workflows"
+	"log"
+	"net"
 )
 
-type (
-	config struct {
-		TemporalCloudAPIAddress string `env:"TEMPORAL_CLOUD_API_ADDRESS" envDefault:"saas-api.tmprl.cloud:443" validate:"required"`
-		AllowInsecure           bool   `env:"ALLOW_INSECURE"`
-		TemporalCloudAPIKey     string `env:"TEMPORAL_CLOUD_API_KEY" validate:"required"`
-	}
+const (
+	temporalHostPort     = "demo-cloud-ops.ps13i.tmprl.cloud:7233"
+	temporalNamespace    = "demo-cloud-ops.ps13i"
+	controlPlaneHostPort = "saas-api.tmprl-test.cloud:443"
+	//apiKeyValue          = "tmprl_myCSpZXG5EyGYOhCCriejuCf814zFRNz_Np9b0JC6knytsMz3261G1VT85x4vIJ5fBPdhuKK4SuTbK0XruUBgobydixE7icGB"
+	// demo3 (in the ps13i account)
+	//apiKeyValue = "tmprl_46L87rLmDTmve2mqycurdcJE9DEDNF7j_VBZGpFXcL3WD4UWVtQ6wxz9nRmRuKNMs6BSFBtlkNF1BgSxvZAGL3Wi5lXQGWwj2"
+	// demo4 (in the temporal-dev account)
+	apiKeyValue = "tmprl_aWsGvnW3p4kwGbocxW83PWaOF0MbsMLQ_thyBko0S3ukKi9k9ZsTNZOgcYcVHGlNEZSuBD6hyoLvoFr6kRC1ZC0GPnjXFb1aL"
+)
+
+// YO LIANG OVERRIDE THIS THING
+const (
+	certFilePath = "/Users/liang/demo/demo-cloud-ops.ps13i.pem"
+	keyFilePath  = "/Users/liang/demo/demo-cloud-ops.ps13i.key"
 )
 
 func main() {
-	cfg := config{}
-	if err := env.Parse(&cfg); err != nil {
-		panic(fmt.Errorf("failed to parse env: %+v", err))
-	}
-	if err := validator.ValidateStruct(cfg); err != nil {
-		panic(fmt.Errorf("invalid config: %+v", err))
-	}
-	c, err := newLocalTemporalClient()
+	ctx := context.Background()
+	tlsConfig, err := getTLSConfig(ctx)
 	if err != nil {
-		panic(fmt.Errorf("failed to create temporal client: %+v", err))
+		log.Fatalln("failed to create TLS config", err)
 	}
-	w, err := newWorker(c)
+
+	// The client and worker are heavyweight objects that should be created once per process.
+	c, err := client.Dial(client.Options{
+		HostPort:          temporalHostPort,
+		Namespace:         temporalNamespace,
+		ConnectionOptions: client.ConnectionOptions{TLS: tlsConfig},
+	})
+
 	if err != nil {
-		panic(fmt.Errorf("failed to create temporal worker: %+v", err))
+		log.Fatalln("Unable to create client", err)
 	}
+	defer c.Close()
+
+	w := worker.New(c, "cloudops", worker.Options{})
+
 	conn, err := temporalcloud.NewConnectionWithAPIKey(
-		cfg.TemporalCloudAPIAddress,
-		cfg.AllowInsecure,
-		cfg.TemporalCloudAPIKey,
+		controlPlaneHostPort,
+		false,
+		apiKeyValue,
 	)
 	if err != nil {
 		panic(fmt.Errorf("failed to create cloud api connection: %+v", err))
@@ -51,14 +65,20 @@ func main() {
 	}
 }
 
-func newLocalTemporalClient() (client.Client, error) {
-	return client.Dial(client.Options{})
-}
-
-func newWorker(client client.Client) (worker.Worker, error) {
-	wo := worker.Options{
-		MaxConcurrentActivityTaskPollers: 10,
-		MaxConcurrentWorkflowTaskPollers: 10,
+func getTLSConfig(_ context.Context) (*tls.Config, error) {
+	serverName, _, parseErr := net.SplitHostPort(temporalHostPort)
+	if parseErr != nil {
+		return nil, fmt.Errorf("failed to split hostport %s: %w", temporalHostPort, parseErr)
 	}
-	return worker.New(client, "demo", wo), nil
+	var cert tls.Certificate
+	var err error
+	cert, err = tls.LoadX509KeyPair(certFilePath, keyFilePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load TLS from files: %w", err)
+	}
+	return &tls.Config{
+		Certificates:       []tls.Certificate{cert},
+		ServerName:         serverName,
+		InsecureSkipVerify: false,
+	}, nil
 }

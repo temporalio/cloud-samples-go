@@ -43,6 +43,10 @@ type (
 	ReconcileUsersOutput struct {
 		Results []*ReconcileUserResult `json:"results"`
 	}
+	PeriodicReconcileUsersInput struct {
+	}
+	PeriodicReconcileUsersOutput struct {
+	}
 )
 
 // Get a user

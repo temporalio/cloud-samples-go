@@ -12,14 +12,15 @@ import (
 //go:generate mockgen -source workflows.go -destination workflows_mock.go -package workflow
 
 const (
-	workflowPrefix             = "cloud-operations-workflows."
-	GetUserWorkflowType        = workflowPrefix + "get-user"
-	GetUsersWorkflowType       = workflowPrefix + "get-users"
-	CreateUserWorkflowType     = workflowPrefix + "create-user"
-	UpdateUserWorkflowType     = workflowPrefix + "update-user"
-	DeleteUserWorkflowType     = workflowPrefix + "delete-user"
-	ReconcileUserWorkflowType  = workflowPrefix + "reconcile-user"
-	ReconcileUsersWorkflowType = workflowPrefix + "reconcile-users"
+	workflowPrefix                     = "cloud-operations-workflows."
+	GetUserWorkflowType                = workflowPrefix + "get-user"
+	GetUsersWorkflowType               = workflowPrefix + "get-users"
+	CreateUserWorkflowType             = workflowPrefix + "create-user"
+	UpdateUserWorkflowType             = workflowPrefix + "update-user"
+	DeleteUserWorkflowType             = workflowPrefix + "delete-user"
+	ReconcileUserWorkflowType          = workflowPrefix + "reconcile-user"
+	ReconcileUsersWorkflowType         = workflowPrefix + "reconcile-users"
+	PeriodicReconcileUsersWorkflowType = workflowPrefix + "periodic-reconcile-users"
 )
 
 type (
@@ -33,6 +34,7 @@ type (
 		DeleteUser(ctx workflow.Context, in *cloudservice.DeleteUserRequest) (*cloudservice.DeleteUserResponse, error)
 		ReconcileUser(ctx workflow.Context, in *ReconcileUserInput) (*ReconcileUserOutput, error)
 		ReconcileUsers(ctx workflow.Context, in *ReconcileUsersInput) (*ReconcileUsersOutput, error)
+		//PeriodicReconcileUsers(ctx workflow.Context, in *PeriodicReconcileUsersInput) (*PeriodicReconcileUsersOutput, error)
 	}
 
 	workflows struct{}
