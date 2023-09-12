@@ -43,7 +43,10 @@ func withActivityRetryPolicy(retryPolicy *temporal.RetryPolicy) func(*workflow.A
 // - Use withActivityHeartbeatTimeout to pass in a heartbeat timeout
 func withInfiniteRetryActivityOptions(ctx workflow.Context, options ...func(*workflow.ActivityOptions)) workflow.Context {
 	ao := workflow.ActivityOptions{
-		StartToCloseTimeout: defaultActivityStartToCloseTimeout,
+		StartToCloseTimeout: time.Second * 2,
+		RetryPolicy: &temporal.RetryPolicy{
+			MaximumAttempts: 3,
+		},
 	}
 	for _, option := range options {
 		option(&ao)

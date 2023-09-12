@@ -6,6 +6,7 @@ import (
 	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/cloudservice/v1"
 	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/user/v1"
 	"go.temporal.io/sdk/activity"
+	"google.golang.org/grpc/status"
 	"io"
 	"os"
 )
@@ -32,7 +33,16 @@ func (a *Activities) CreateUser(ctx context.Context, in *cloudservice.CreateUser
 }
 
 func (a *Activities) UpdateUser(ctx context.Context, in *cloudservice.UpdateUserRequest) (*cloudservice.UpdateUserResponse, error) {
-	return a.cloudserviceclient.UpdateUser(ctx, in)
+	resp, err := a.cloudserviceclient.UpdateUser(ctx, in)
+	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			if e.Message() == "nothing to change" {
+				return nil, nil
+			}
+		}
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (a *Activities) DeleteUser(ctx context.Context, in *cloudservice.DeleteUserRequest) (*cloudservice.DeleteUserResponse, error) {
@@ -46,7 +56,7 @@ func (a *Activities) GetUserSpecsFromFile(ctx context.Context, in *GetUserSpecsF
 		activity.GetLogger(ctx).Error("Error opening file", "error", err)
 		return nil, err
 	}
-	activity.GetLogger(ctx).Info("Successfully Opened file " + in.FilePath)
+	//activity.GetLogger(ctx).Info("Successfully Opened file " + in.FilePath)
 	defer jsonFile.Close()
 
 	byteValue, err := io.ReadAll(jsonFile)

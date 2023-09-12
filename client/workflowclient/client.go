@@ -33,6 +33,7 @@ func MustGetClient() client.Client {
 		HostPort:          temporalHostPort,
 		Namespace:         temporalNamespace,
 		ConnectionOptions: client.ConnectionOptions{TLS: tlsConfig},
+		Logger:            NewDefaultLogger(),
 	})
 
 	if err != nil {

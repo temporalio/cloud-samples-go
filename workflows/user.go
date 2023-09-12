@@ -120,9 +120,17 @@ func (w *workflows) reconcileUser(ctx workflow.Context, spec *user.UserSpec, use
 		if err != nil {
 			return nil, "", err
 		}
+
 		userID = user.Id
-		asyncOpID = updateResp.AsyncOperation.Id
-		reconileStatus = UpdatedReconcileResult
+
+		if updateResp == nil {
+			// nothing to change, get the latest user and return
+			reconileStatus = UnchangedReconcileResult
+		} else {
+			asyncOpID = updateResp.AsyncOperation.Id
+			reconileStatus = UpdatedReconcileResult
+		}
+
 	} else {
 		// nothing to change, get the latest user and return
 		userID = user.Id
@@ -246,7 +254,17 @@ func (w *workflows) PeriodicReconcileUsers(ctx workflow.Context, in *PeriodicRec
 		if err != nil {
 			workflow.GetLogger(ctx).Error("PeriodicReconcileUsers failed to get user specs from file", "error", err)
 		} else {
-			workflow.GetLogger(ctx).Info("PeriodicReconcileUsers got user specs from file", "userSpecs", getUserSpecsFromFileResp.Specs)
+			workflow.GetLogger(ctx).Info(fmt.Sprintf("PeriodicReconcileUsers got %v user specs from file %v.", len(getUserSpecsFromFileResp.Specs), in.FilePath))
+		}
+
+		reconcileUsersInput := &ReconcileUsersInput{
+			Specs: getUserSpecsFromFileResp.Specs,
+		}
+		_, err = w.ReconcileUsers(ctx, reconcileUsersInput)
+		if err != nil {
+			workflow.GetLogger(ctx).Error("PeriodicReconcileUsers failed to reconcile users", "error", err)
+		} else {
+			workflow.GetLogger(ctx).Info("Successfully reconciled users.")
 		}
 
 		workflow.NewTimer(ctx, time.Second*10).Get(ctx, nil)
