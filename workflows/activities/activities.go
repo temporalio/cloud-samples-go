@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	activitiesPrefix = "temporal-cloud-activities."
+	activitiesPrefix = "tmprlcloud-activity."
 )
 
 type (

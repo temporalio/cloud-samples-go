@@ -12,7 +12,7 @@ import (
 //go:generate mockgen -source workflows.go -destination workflows_mock.go -package workflow
 
 const (
-	workflowPrefix             = "temporal-cloud-workflows."
+	workflowPrefix             = "tmprlcloud-wf."
 	GetUserWorkflowType        = workflowPrefix + "get-user"
 	GetUsersWorkflowType       = workflowPrefix + "get-users"
 	CreateUserWorkflowType     = workflowPrefix + "create-user"
