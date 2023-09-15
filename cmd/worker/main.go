@@ -2,45 +2,33 @@ package main
 
 import (
 	"fmt"
+	"os"
 
-	"github.com/caarlos0/env/v9"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 
 	"github.com/temporalio/cloud-operations-workflows/client/temporalcloud"
-	"github.com/temporalio/cloud-operations-workflows/internal/validator"
 	"github.com/temporalio/cloud-operations-workflows/workflows"
 )
 
-type (
-	config struct {
-		TemporalCloudAPIAddress string `env:"TEMPORAL_CLOUD_API_ADDRESS" envDefault:"saas-api.tmprl.cloud:443" validate:"required"`
-		AllowInsecure           bool   `env:"ALLOW_INSECURE"`
-		TemporalCloudAPIKey     string `env:"TEMPORAL_CLOUD_API_KEY" validate:"required"`
-	}
+const (
+	temporalCloudAPIAddress    = "saas-api.tmprl.cloud:443"
+	temporalCloudAPIKeyEnvName = "TEMPORAL_CLOUD_API_KEY"
 )
 
 func main() {
-	cfg := config{}
-	if err := env.Parse(&cfg); err != nil {
-		panic(fmt.Errorf("failed to parse env: %+v", err))
-	}
-	if err := validator.ValidateStruct(cfg); err != nil {
-		panic(fmt.Errorf("invalid config: %+v", err))
+	apikey, err := getAPIKeyFromEnv()
+	if err != nil {
+		panic(err)
 	}
 	c, err := newLocalTemporalClient()
 	if err != nil {
 		panic(fmt.Errorf("failed to create temporal client: %+v", err))
 	}
-	w, err := newWorker(c)
-	if err != nil {
-		panic(fmt.Errorf("failed to create temporal worker: %+v", err))
-	}
-	conn, err := temporalcloud.NewConnectionWithAPIKey(
-		cfg.TemporalCloudAPIAddress,
-		cfg.AllowInsecure,
-		cfg.TemporalCloudAPIKey,
-	)
+	defer c.Close()
+	w := newWorker(c)
+
+	conn, err := temporalcloud.NewConnectionWithAPIKey(temporalCloudAPIAddress, false, apikey)
 	if err != nil {
 		panic(fmt.Errorf("failed to create cloud api connection: %+v", err))
 	}
@@ -55,10 +43,18 @@ func newLocalTemporalClient() (client.Client, error) {
 	return client.Dial(client.Options{})
 }
 
-func newWorker(client client.Client) (worker.Worker, error) {
+func newWorker(client client.Client) worker.Worker {
 	wo := worker.Options{
 		MaxConcurrentActivityTaskPollers: 10,
 		MaxConcurrentWorkflowTaskPollers: 10,
 	}
-	return worker.New(client, "demo", wo), nil
+	return worker.New(client, "demo", wo)
+}
+
+func getAPIKeyFromEnv() (string, error) {
+	v := os.Getenv(temporalCloudAPIKeyEnvName)
+	if v == "" {
+		return "", fmt.Errorf("apikey not provided, set environment variable '%s' with apikey you want to use", temporalCloudAPIKeyEnvName)
+	}
+	return v, nil
 }
