@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/temporalio/cloud-operations-workflows/internal/validator"
-	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/cloudservice/v1"
-	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/operation/v1"
-	"github.com/temporalio/cloud-operations-workflows/workflows/activities"
+	"github.com/temporalio/cloud-samples-go/internal/validator"
+	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/cloudservice/v1"
+	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/operation/v1"
+	"github.com/temporalio/cloud-samples-go/workflows/activities"
 	"go.temporal.io/sdk/workflow"
 )
 

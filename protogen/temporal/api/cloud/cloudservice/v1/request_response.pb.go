@@ -8,8 +8,8 @@ package cloudservice
 
 import (
 	proto "github.com/golang/protobuf/proto"
-	v1 "github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/identity/v1"
-	v11 "github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/operation/v1"
+	v1 "github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/identity/v1"
+	v11 "github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/operation/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

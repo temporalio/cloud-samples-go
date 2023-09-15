@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/temporalio/cloud-samples-go/client/temporalcloud"
+	"github.com/temporalio/cloud-samples-go/workflows"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
-
-	"github.com/temporalio/cloud-operations-workflows/client/temporalcloud"
-	"github.com/temporalio/cloud-operations-workflows/workflows"
 )
 
 const (
