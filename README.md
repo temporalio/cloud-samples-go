@@ -2,14 +2,12 @@
 
 This repository contains several sample Workflow applications that demonstrate the various capabilities of the Temporal Cloud APIs.
 
-Workflows that can be used to manage resources on teamporl cloud.
-
 * Temporal Cloud API repo: [temporalio/cloud-api](https://github.com/temporalio/api-cloud)
 
-## Workflows
+## WorkflowTypes
 
-| WorkflowType                               | Description                                                                                                                                       |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| WorkflowType                    | Description                                                                                                                                       |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `tmprlcloud-wf.get-user`        | Get an existing user.                                                                                                                             |
 | `tmprlcloud-wf.get-users`       | List all users.                                                                                                                                   |
 | `tmprlcloud-wf.create-user`     | Create a new user.                                                                                                                                |

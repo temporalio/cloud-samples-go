@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/temporalio/cloud-samples-go/client/temporalcloud"
+	"github.com/temporalio/cloud-samples-go/client/api"
 	"github.com/temporalio/cloud-samples-go/workflows"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
@@ -27,7 +27,7 @@ func main() {
 	defer c.Close()
 	w := newWorker(c)
 
-	conn, err := temporalcloud.NewConnectionWithAPIKey(temporalCloudAPIAddress, false, apikey)
+	conn, err := api.NewConnectionWithAPIKey(temporalCloudAPIAddress, false, apikey)
 	if err != nil {
 		panic(fmt.Errorf("failed to create cloud api connection: %+v", err))
 	}

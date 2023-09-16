@@ -1,4 +1,4 @@
-package temporalcloud
+package api
 
 import (
 	"crypto/tls"
