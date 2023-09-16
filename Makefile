@@ -39,7 +39,7 @@ go-grpc: clean $(PROTO_OUT)
 	cd proto && buf generate --output ../
 
 fix-proto-generated-go-path:
-	@if [ "$$(uname -s)" = "Darwin" ]; then find $(PROTO_OUT) -name '*.go' -exec sed -i '' "s/go\.temporal\.io/github\.com\/temporalio\/cloud-operations-workflows\/protogen\/temporal/g" {} \;; else find $(PROTO_OUT) -name '*.go' -exec sed -i 's/go\.temporal\.io/github\.com\/temporalio\/cloud-operations-workflows\/protogen\/temporal/g' {} \;; fi
+	@if [ "$$(uname -s)" = "Darwin" ]; then find $(PROTO_OUT) -name '*.go' -exec sed -i '' "s/go\.temporal\.io/github\.com\/temporalio\/cloud-samples-go\/protogen\/temporal/g" {} \;; else find $(PROTO_OUT) -name '*.go' -exec sed -i 's/go\.temporal\.io/github\.com\/temporalio\/cloud-samples-go\/protogen\/temporal/g' {} \;; fi
 
 ##### Plugins & tools #####
 buf-install:

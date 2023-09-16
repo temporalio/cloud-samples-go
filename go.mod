@@ -1,4 +1,4 @@
-module github.com/temporalio/cloud-operations-workflows
+module github.com/temporalio/cloud-samples-go
 
 go 1.21.0
 

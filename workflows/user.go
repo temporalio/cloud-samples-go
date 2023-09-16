@@ -9,10 +9,10 @@ import (
 	"go.temporal.io/sdk/workflow"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/temporalio/cloud-operations-workflows/internal/validator"
-	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/cloudservice/v1"
-	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/identity/v1"
-	"github.com/temporalio/cloud-operations-workflows/workflows/activities"
+	"github.com/temporalio/cloud-samples-go/internal/validator"
+	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/cloudservice/v1"
+	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/identity/v1"
+	"github.com/temporalio/cloud-samples-go/workflows/activities"
 )
 
 const (

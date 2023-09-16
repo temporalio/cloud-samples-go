@@ -1,4 +1,4 @@
-package temporalcloud
+package api
 
 import (
 	"crypto/tls"
@@ -16,7 +16,6 @@ const (
 )
 
 func NewConnectionWithAPIKey(addrStr string, allowInsecure bool, apiKey string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
-
 	return NewConnection(
 		addrStr,
 		allowInsecure,

@@ -1,9 +1,9 @@
 package workflows
 
 import (
-	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/cloudservice/v1"
-	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/identity/v1"
-	"github.com/temporalio/cloud-operations-workflows/workflows/activities"
+	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/cloudservice/v1"
+	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/identity/v1"
+	"github.com/temporalio/cloud-samples-go/workflows/activities"
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"
 	"google.golang.org/grpc"
@@ -12,7 +12,7 @@ import (
 //go:generate mockgen -source workflows.go -destination workflows_mock.go -package workflow
 
 const (
-	workflowPrefix             = "cloud-operations-workflows."
+	workflowPrefix             = "tmprlcloud-wf."
 	GetUserWorkflowType        = workflowPrefix + "get-user"
 	GetUsersWorkflowType       = workflowPrefix + "get-users"
 	CreateUserWorkflowType     = workflowPrefix + "create-user"

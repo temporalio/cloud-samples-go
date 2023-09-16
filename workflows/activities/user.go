@@ -3,7 +3,7 @@ package activities
 import (
 	"context"
 
-	"github.com/temporalio/cloud-operations-workflows/protogen/temporal/api/cloud/cloudservice/v1"
+	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/cloudservice/v1"
 )
 
 func (a *Activities) GetUser(ctx context.Context, in *cloudservice.GetUserRequest) (*cloudservice.GetUserResponse, error) {
