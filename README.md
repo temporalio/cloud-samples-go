@@ -1,10 +1,16 @@
 # Temporal Cloud API Samples
 
-This repository contains several sample Workflow applications that demonstrate the various capabilities of the Temporal Cloud APIs.
+This repository contains several samples that demonstrate the various capabilities of the Temporal Cloud.
+
+## Cloud Temporal Client
+
+
+
+## Cloud API Workflows
+
+Sample Workflow applications that exercises the Temporal Cloud APIs.
 
 * Temporal Cloud API repo: [temporalio/cloud-api](https://github.com/temporalio/api-cloud)
-
-## WorkflowTypes
 
 | WorkflowType                    | Description                                                                                                                                       |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
