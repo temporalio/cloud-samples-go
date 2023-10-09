@@ -24,12 +24,12 @@ Generate an apikey by either visiting the [Cloud UI](https://cloud.temporal.io/s
 ### Step 2: Start the worker 
 Start the worker using the APIKey
 ```
-TEMPORAL_CLOUD_API_KEY=<apikey> go run ./demo
+TEMPORAL_CLOUD_API_KEY=<apikey> go run ./cmd/worker
 ```
 
 ### Step 3: Run a workflow
 Run a workflow using `tctl` for example to invoke `get-users` workflow run:
 ```
-tctl wf start --tq demo --wt cloud-operations-workflows.get-users -i '{}'
+tctl wf start --tq demo --wt tmprlcloud-wf.get-users -i '{}'
 ```
 

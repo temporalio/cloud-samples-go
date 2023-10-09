@@ -1,18 +1,16 @@
 package api
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
-)
-
-const (
-	VersionHeader = "cloud-operations-workflows-version"
-	CommitHeader  = "cloud-operations-workflows-commit"
+	"google.golang.org/grpc/metadata"
 )
 
 func NewConnectionWithAPIKey(addrStr string, allowInsecure bool, apiKey string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
@@ -53,6 +51,20 @@ func defaultDialOptions(addr *url.URL, allowInsecure bool) ([]grpc.DialOption, e
 	if allowInsecure {
 		transport = insecure.NewCredentials()
 	}
+
 	opts = append(opts, grpc.WithTransportCredentials(transport))
+	opts = append(opts, grpc.WithUnaryInterceptor(setAPIVersionInterceptor))
 	return opts, nil
+}
+
+func setAPIVersionInterceptor(
+	ctx context.Context,
+	method string,
+	req, reply interface{},
+	cc *grpc.ClientConn,
+	invoker grpc.UnaryInvoker,
+	opts ...grpc.CallOption,
+) error {
+	ctx = metadata.AppendToOutgoingContext(ctx, TemporalCloudAPIVersionHeader, strings.TrimSpace(TemporalCloudAPIVersion))
+	return invoker(ctx, method, req, reply, cc, opts...)
 }

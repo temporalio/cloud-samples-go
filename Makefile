@@ -27,8 +27,9 @@ copy-api-cloud-api:
 	@printf $(COLOR) "Copy api-cloud..."
 	rm -rf $(PROTO_ROOT)/temporal/api
 	mkdir -p $(PROTO_ROOT)/temporal/api
-	git clone git@github.com:temporalio/api-cloud.git --depth=1 --branch abhinav/userMgmt --single-branch $(PROTO_ROOT)/api-cloud-tmp
+	git clone git@github.com:temporalio/api-cloud.git --depth=1 --branch main --single-branch $(PROTO_ROOT)/api-cloud-tmp
 	mv -f $(PROTO_ROOT)/api-cloud-tmp/temporal/api/cloud $(PROTO_ROOT)/temporal/api
+	mv $(PROTO_ROOT)/api-cloud-tmp/VERSION client/api/version
 	rm -rf $(PROTO_ROOT)/api-cloud-tmp
 
 ##### Compile proto files for go #####
