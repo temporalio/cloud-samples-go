@@ -3,12 +3,11 @@ module github.com/temporalio/cloud-samples-go
 go 1.21.0
 
 require (
-	github.com/caarlos0/env/v9 v9.0.0
 	github.com/go-playground/validator/v10 v10.15.3
-	github.com/golang/protobuf v1.5.3
+	github.com/gogo/status v1.1.1
 	go.temporal.io/sdk v1.24.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230822172742-b8732ec3820d
-	google.golang.org/grpc v1.57.0
+	google.golang.org/grpc v1.57.1
 	google.golang.org/protobuf v1.31.0
 )
 
@@ -20,8 +19,8 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/gogo/status v1.1.1 // indirect
 	github.com/golang/mock v1.6.0 // indirect
+	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
