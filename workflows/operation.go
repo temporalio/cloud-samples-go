@@ -9,7 +9,14 @@ import (
 	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/cloudservice/v1"
 	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/operation/v1"
 	"github.com/temporalio/cloud-samples-go/workflows/activities"
+	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"
+)
+
+const (
+	// async operation workflow types
+	GetAsynOperationWorkflowType = workflowPrefix + "get-async-operation"
+	WaitForAsyncOperationType    = workflowPrefix + "wait-for-async-operation"
 )
 
 type (
@@ -20,7 +27,22 @@ type (
 	WaitForAsyncOperationOutput struct {
 		AsyncOperation *operation.AsyncOperation
 	}
+
+	AsyncOperationWorkflows interface {
+		// Async Operations Workflows
+		GetAsynOperation(ctx workflow.Context, in *cloudservice.GetAsyncOperationRequest) (*cloudservice.GetAsyncOperationResponse, error)
+		WaitForAsyncOperation(ctx workflow.Context, in *WaitForAsyncOperationInput) (*WaitForAsyncOperationOutput, error)
+	}
 )
+
+func registerAsyncOperationWorkflows(w worker.Worker, wf AsyncOperationWorkflows) {
+	for k, v := range map[string]any{
+		GetAsynOperationWorkflowType: wf.GetAsynOperation,
+		WaitForAsyncOperationType:    wf.WaitForAsyncOperation,
+	} {
+		w.RegisterWorkflowWithOptions(v, workflow.RegisterOptions{Name: k})
+	}
+}
 
 // Get a async operation
 func (w *workflows) GetAsynOperation(ctx workflow.Context, in *cloudservice.GetAsyncOperationRequest) (*cloudservice.GetAsyncOperationResponse, error) {
@@ -37,7 +59,7 @@ func (w *workflows) WaitForAsyncOperation(ctx workflow.Context, in *WaitForAsync
 		err  error
 	)
 	selector := workflow.NewSelector(ctx)
-	getReqStatusFn := func(f workflow.Future) {
+	getReqStatusFn := func(_ workflow.Future) {
 		resp, err = w.GetAsynOperation(ctx, &cloudservice.GetAsyncOperationRequest{
 			AsyncOperationId: in.AsyncOperationID,
 		})
@@ -45,7 +67,7 @@ func (w *workflows) WaitForAsyncOperation(ctx workflow.Context, in *WaitForAsync
 
 	// Check the request status immediately the first time, then poll at a regular interval afterwards
 	selector.AddFuture(workflow.NewTimer(ctx, 0), getReqStatusFn)
-	selector.AddFuture(workflow.NewTimer(ctx, in.Timeout), func(f workflow.Future) {
+	selector.AddFuture(workflow.NewTimer(ctx, in.Timeout), func(_ workflow.Future) {
 		err = fmt.Errorf("timed out waiting for async operation, asyncOperationID=%s, timeout=%s",
 			in.AsyncOperationID, in.Timeout)
 	})

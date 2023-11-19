@@ -19,13 +19,21 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	CloudService_GetUsers_FullMethodName               = "/temporal.api.cloud.cloudservice.v1.CloudService/GetUsers"
-	CloudService_GetUser_FullMethodName                = "/temporal.api.cloud.cloudservice.v1.CloudService/GetUser"
-	CloudService_CreateUser_FullMethodName             = "/temporal.api.cloud.cloudservice.v1.CloudService/CreateUser"
-	CloudService_UpdateUser_FullMethodName             = "/temporal.api.cloud.cloudservice.v1.CloudService/UpdateUser"
-	CloudService_DeleteUser_FullMethodName             = "/temporal.api.cloud.cloudservice.v1.CloudService/DeleteUser"
-	CloudService_SetUserNamespaceAccess_FullMethodName = "/temporal.api.cloud.cloudservice.v1.CloudService/SetUserNamespaceAccess"
-	CloudService_GetAsyncOperation_FullMethodName      = "/temporal.api.cloud.cloudservice.v1.CloudService/GetAsyncOperation"
+	CloudService_GetUsers_FullMethodName                    = "/temporal.api.cloud.cloudservice.v1.CloudService/GetUsers"
+	CloudService_GetUser_FullMethodName                     = "/temporal.api.cloud.cloudservice.v1.CloudService/GetUser"
+	CloudService_CreateUser_FullMethodName                  = "/temporal.api.cloud.cloudservice.v1.CloudService/CreateUser"
+	CloudService_UpdateUser_FullMethodName                  = "/temporal.api.cloud.cloudservice.v1.CloudService/UpdateUser"
+	CloudService_DeleteUser_FullMethodName                  = "/temporal.api.cloud.cloudservice.v1.CloudService/DeleteUser"
+	CloudService_SetUserNamespaceAccess_FullMethodName      = "/temporal.api.cloud.cloudservice.v1.CloudService/SetUserNamespaceAccess"
+	CloudService_GetAsyncOperation_FullMethodName           = "/temporal.api.cloud.cloudservice.v1.CloudService/GetAsyncOperation"
+	CloudService_CreateNamespace_FullMethodName             = "/temporal.api.cloud.cloudservice.v1.CloudService/CreateNamespace"
+	CloudService_GetNamespaces_FullMethodName               = "/temporal.api.cloud.cloudservice.v1.CloudService/GetNamespaces"
+	CloudService_GetNamespace_FullMethodName                = "/temporal.api.cloud.cloudservice.v1.CloudService/GetNamespace"
+	CloudService_UpdateNamespace_FullMethodName             = "/temporal.api.cloud.cloudservice.v1.CloudService/UpdateNamespace"
+	CloudService_RenameCustomSearchAttribute_FullMethodName = "/temporal.api.cloud.cloudservice.v1.CloudService/RenameCustomSearchAttribute"
+	CloudService_DeleteNamespace_FullMethodName             = "/temporal.api.cloud.cloudservice.v1.CloudService/DeleteNamespace"
+	CloudService_GetRegions_FullMethodName                  = "/temporal.api.cloud.cloudservice.v1.CloudService/GetRegions"
+	CloudService_GetRegion_FullMethodName                   = "/temporal.api.cloud.cloudservice.v1.CloudService/GetRegion"
 )
 
 // CloudServiceClient is the client API for CloudService service.
@@ -46,6 +54,22 @@ type CloudServiceClient interface {
 	SetUserNamespaceAccess(ctx context.Context, in *SetUserNamespaceAccessRequest, opts ...grpc.CallOption) (*SetUserNamespaceAccessResponse, error)
 	// Get the latest information on an async operation
 	GetAsyncOperation(ctx context.Context, in *GetAsyncOperationRequest, opts ...grpc.CallOption) (*GetAsyncOperationResponse, error)
+	// Create a new namespace
+	CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, opts ...grpc.CallOption) (*CreateNamespaceResponse, error)
+	// Get all namespaces
+	GetNamespaces(ctx context.Context, in *GetNamespacesRequest, opts ...grpc.CallOption) (*GetNamespacesResponse, error)
+	// Get a namespace
+	GetNamespace(ctx context.Context, in *GetNamespaceRequest, opts ...grpc.CallOption) (*GetNamespaceResponse, error)
+	// Update a namespace
+	UpdateNamespace(ctx context.Context, in *UpdateNamespaceRequest, opts ...grpc.CallOption) (*UpdateNamespaceResponse, error)
+	// Rename an existing customer search attribute
+	RenameCustomSearchAttribute(ctx context.Context, in *RenameCustomSearchAttributeRequest, opts ...grpc.CallOption) (*RenameCustomSearchAttributeResponse, error)
+	// Delete a namespace
+	DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, opts ...grpc.CallOption) (*DeleteNamespaceResponse, error)
+	// Get all regions
+	GetRegions(ctx context.Context, in *GetRegionsRequest, opts ...grpc.CallOption) (*GetRegionsResponse, error)
+	// Get a region
+	GetRegion(ctx context.Context, in *GetRegionRequest, opts ...grpc.CallOption) (*GetRegionResponse, error)
 }
 
 type cloudServiceClient struct {
@@ -119,6 +143,78 @@ func (c *cloudServiceClient) GetAsyncOperation(ctx context.Context, in *GetAsync
 	return out, nil
 }
 
+func (c *cloudServiceClient) CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, opts ...grpc.CallOption) (*CreateNamespaceResponse, error) {
+	out := new(CreateNamespaceResponse)
+	err := c.cc.Invoke(ctx, CloudService_CreateNamespace_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cloudServiceClient) GetNamespaces(ctx context.Context, in *GetNamespacesRequest, opts ...grpc.CallOption) (*GetNamespacesResponse, error) {
+	out := new(GetNamespacesResponse)
+	err := c.cc.Invoke(ctx, CloudService_GetNamespaces_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cloudServiceClient) GetNamespace(ctx context.Context, in *GetNamespaceRequest, opts ...grpc.CallOption) (*GetNamespaceResponse, error) {
+	out := new(GetNamespaceResponse)
+	err := c.cc.Invoke(ctx, CloudService_GetNamespace_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cloudServiceClient) UpdateNamespace(ctx context.Context, in *UpdateNamespaceRequest, opts ...grpc.CallOption) (*UpdateNamespaceResponse, error) {
+	out := new(UpdateNamespaceResponse)
+	err := c.cc.Invoke(ctx, CloudService_UpdateNamespace_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cloudServiceClient) RenameCustomSearchAttribute(ctx context.Context, in *RenameCustomSearchAttributeRequest, opts ...grpc.CallOption) (*RenameCustomSearchAttributeResponse, error) {
+	out := new(RenameCustomSearchAttributeResponse)
+	err := c.cc.Invoke(ctx, CloudService_RenameCustomSearchAttribute_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cloudServiceClient) DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, opts ...grpc.CallOption) (*DeleteNamespaceResponse, error) {
+	out := new(DeleteNamespaceResponse)
+	err := c.cc.Invoke(ctx, CloudService_DeleteNamespace_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cloudServiceClient) GetRegions(ctx context.Context, in *GetRegionsRequest, opts ...grpc.CallOption) (*GetRegionsResponse, error) {
+	out := new(GetRegionsResponse)
+	err := c.cc.Invoke(ctx, CloudService_GetRegions_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cloudServiceClient) GetRegion(ctx context.Context, in *GetRegionRequest, opts ...grpc.CallOption) (*GetRegionResponse, error) {
+	out := new(GetRegionResponse)
+	err := c.cc.Invoke(ctx, CloudService_GetRegion_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CloudServiceServer is the server API for CloudService service.
 // All implementations must embed UnimplementedCloudServiceServer
 // for forward compatibility
@@ -137,6 +233,22 @@ type CloudServiceServer interface {
 	SetUserNamespaceAccess(context.Context, *SetUserNamespaceAccessRequest) (*SetUserNamespaceAccessResponse, error)
 	// Get the latest information on an async operation
 	GetAsyncOperation(context.Context, *GetAsyncOperationRequest) (*GetAsyncOperationResponse, error)
+	// Create a new namespace
+	CreateNamespace(context.Context, *CreateNamespaceRequest) (*CreateNamespaceResponse, error)
+	// Get all namespaces
+	GetNamespaces(context.Context, *GetNamespacesRequest) (*GetNamespacesResponse, error)
+	// Get a namespace
+	GetNamespace(context.Context, *GetNamespaceRequest) (*GetNamespaceResponse, error)
+	// Update a namespace
+	UpdateNamespace(context.Context, *UpdateNamespaceRequest) (*UpdateNamespaceResponse, error)
+	// Rename an existing customer search attribute
+	RenameCustomSearchAttribute(context.Context, *RenameCustomSearchAttributeRequest) (*RenameCustomSearchAttributeResponse, error)
+	// Delete a namespace
+	DeleteNamespace(context.Context, *DeleteNamespaceRequest) (*DeleteNamespaceResponse, error)
+	// Get all regions
+	GetRegions(context.Context, *GetRegionsRequest) (*GetRegionsResponse, error)
+	// Get a region
+	GetRegion(context.Context, *GetRegionRequest) (*GetRegionResponse, error)
 	mustEmbedUnimplementedCloudServiceServer()
 }
 
@@ -164,6 +276,30 @@ func (UnimplementedCloudServiceServer) SetUserNamespaceAccess(context.Context, *
 }
 func (UnimplementedCloudServiceServer) GetAsyncOperation(context.Context, *GetAsyncOperationRequest) (*GetAsyncOperationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAsyncOperation not implemented")
+}
+func (UnimplementedCloudServiceServer) CreateNamespace(context.Context, *CreateNamespaceRequest) (*CreateNamespaceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateNamespace not implemented")
+}
+func (UnimplementedCloudServiceServer) GetNamespaces(context.Context, *GetNamespacesRequest) (*GetNamespacesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNamespaces not implemented")
+}
+func (UnimplementedCloudServiceServer) GetNamespace(context.Context, *GetNamespaceRequest) (*GetNamespaceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNamespace not implemented")
+}
+func (UnimplementedCloudServiceServer) UpdateNamespace(context.Context, *UpdateNamespaceRequest) (*UpdateNamespaceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateNamespace not implemented")
+}
+func (UnimplementedCloudServiceServer) RenameCustomSearchAttribute(context.Context, *RenameCustomSearchAttributeRequest) (*RenameCustomSearchAttributeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RenameCustomSearchAttribute not implemented")
+}
+func (UnimplementedCloudServiceServer) DeleteNamespace(context.Context, *DeleteNamespaceRequest) (*DeleteNamespaceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteNamespace not implemented")
+}
+func (UnimplementedCloudServiceServer) GetRegions(context.Context, *GetRegionsRequest) (*GetRegionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRegions not implemented")
+}
+func (UnimplementedCloudServiceServer) GetRegion(context.Context, *GetRegionRequest) (*GetRegionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRegion not implemented")
 }
 func (UnimplementedCloudServiceServer) mustEmbedUnimplementedCloudServiceServer() {}
 
@@ -304,6 +440,150 @@ func _CloudService_GetAsyncOperation_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CloudService_CreateNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateNamespaceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudServiceServer).CreateNamespace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudService_CreateNamespace_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudServiceServer).CreateNamespace(ctx, req.(*CreateNamespaceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CloudService_GetNamespaces_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNamespacesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudServiceServer).GetNamespaces(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudService_GetNamespaces_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudServiceServer).GetNamespaces(ctx, req.(*GetNamespacesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CloudService_GetNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNamespaceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudServiceServer).GetNamespace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudService_GetNamespace_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudServiceServer).GetNamespace(ctx, req.(*GetNamespaceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CloudService_UpdateNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateNamespaceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudServiceServer).UpdateNamespace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudService_UpdateNamespace_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudServiceServer).UpdateNamespace(ctx, req.(*UpdateNamespaceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CloudService_RenameCustomSearchAttribute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RenameCustomSearchAttributeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudServiceServer).RenameCustomSearchAttribute(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudService_RenameCustomSearchAttribute_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudServiceServer).RenameCustomSearchAttribute(ctx, req.(*RenameCustomSearchAttributeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CloudService_DeleteNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteNamespaceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudServiceServer).DeleteNamespace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudService_DeleteNamespace_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudServiceServer).DeleteNamespace(ctx, req.(*DeleteNamespaceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CloudService_GetRegions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRegionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudServiceServer).GetRegions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudService_GetRegions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudServiceServer).GetRegions(ctx, req.(*GetRegionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CloudService_GetRegion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRegionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudServiceServer).GetRegion(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudService_GetRegion_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudServiceServer).GetRegion(ctx, req.(*GetRegionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CloudService_ServiceDesc is the grpc.ServiceDesc for CloudService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -338,6 +618,38 @@ var CloudService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAsyncOperation",
 			Handler:    _CloudService_GetAsyncOperation_Handler,
+		},
+		{
+			MethodName: "CreateNamespace",
+			Handler:    _CloudService_CreateNamespace_Handler,
+		},
+		{
+			MethodName: "GetNamespaces",
+			Handler:    _CloudService_GetNamespaces_Handler,
+		},
+		{
+			MethodName: "GetNamespace",
+			Handler:    _CloudService_GetNamespace_Handler,
+		},
+		{
+			MethodName: "UpdateNamespace",
+			Handler:    _CloudService_UpdateNamespace_Handler,
+		},
+		{
+			MethodName: "RenameCustomSearchAttribute",
+			Handler:    _CloudService_RenameCustomSearchAttribute_Handler,
+		},
+		{
+			MethodName: "DeleteNamespace",
+			Handler:    _CloudService_DeleteNamespace_Handler,
+		},
+		{
+			MethodName: "GetRegions",
+			Handler:    _CloudService_GetRegions_Handler,
+		},
+		{
+			MethodName: "GetRegion",
+			Handler:    _CloudService_GetRegion_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

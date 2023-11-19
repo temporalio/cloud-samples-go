@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go.temporal.io/sdk/temporal"
+	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"
 	"google.golang.org/protobuf/proto"
 
@@ -18,6 +19,19 @@ import (
 const (
 	userUpdateTimeout = 10 * time.Minute
 
+	// user management workflow types
+	GetUserWorkflowType                      = workflowPrefix + "get-user"
+	GetUsersWorkflowType                     = workflowPrefix + "get-users"
+	GetAllUsersWorkflowType                  = workflowPrefix + "get-all-users"
+	GetUserWithEmailWorkflow                 = workflowPrefix + "get-user-with-email"
+	GetAllUsersWithAccessToNamespaceWorkflow = workflowPrefix + "get-all-users-with-access-to-namespace"
+	CreateUserWorkflowType                   = workflowPrefix + "create-user"
+	UpdateUserWorkflowType                   = workflowPrefix + "update-user"
+	DeleteUserWorkflowType                   = workflowPrefix + "delete-user"
+	ReconcileUserWorkflowType                = workflowPrefix + "reconcile-user"
+	ReconcileUsersWorkflowType               = workflowPrefix + "reconcile-users"
+
+	// reconcile outcomes
 	ReconcileOutcomeCreated     = "created"
 	ReconcileOutcomeDeleted     = "deleted"
 	ReconcileOutcomeUpdated     = "updated"
@@ -44,6 +58,20 @@ type (
 	ReconcileUsersOutput struct {
 		Results []*ReconcileUserOutput `json:"results"`
 	}
+
+	UserWorkflows interface {
+		// User Management Workflows
+		GetUser(ctx workflow.Context, in *cloudservice.GetUserRequest) (*cloudservice.GetUserResponse, error)
+		GetUsers(ctx workflow.Context, in *cloudservice.GetUsersRequest) (*cloudservice.GetUsersResponse, error)
+		GetAllUsers(ctx workflow.Context) ([]*identity.User, error)
+		GetUserWithEmail(ctx workflow.Context, email string) (*identity.User, error)
+		GetAllUsersWithAccessToNamespace(ctx workflow.Context, namespace string) ([]*identity.User, error)
+		CreateUser(ctx workflow.Context, in *cloudservice.CreateUserRequest) (*cloudservice.CreateUserResponse, error)
+		UpdateUser(ctx workflow.Context, in *cloudservice.UpdateUserRequest) (*cloudservice.UpdateUserResponse, error)
+		DeleteUser(ctx workflow.Context, in *cloudservice.DeleteUserRequest) (*cloudservice.DeleteUserResponse, error)
+		ReconcileUser(ctx workflow.Context, in *ReconcileUserInput) (*ReconcileUserOutput, error)
+		ReconcileUsers(ctx workflow.Context, in *ReconcileUsersInput) (*ReconcileUsersOutput, error)
+	}
 )
 
 func (o *ReconcileUserOutput) setError(err error) {
@@ -51,6 +79,23 @@ func (o *ReconcileUserOutput) setError(err error) {
 	if errors.As(err, &applicationErr) {
 		o.Error = applicationErr.Error()
 		o.Outcome = ReconcileOutcomeError
+	}
+}
+
+func registerUserWorkflows(w worker.Worker, wf UserWorkflows) {
+	for k, v := range map[string]any{
+		GetUserWorkflowType:                      wf.GetUser,
+		GetUsersWorkflowType:                     wf.GetUsers,
+		GetAllUsersWorkflowType:                  wf.GetAllUsers,
+		GetUserWithEmailWorkflow:                 wf.GetUserWithEmail,
+		GetAllUsersWithAccessToNamespaceWorkflow: wf.GetAllUsersWithAccessToNamespace,
+		CreateUserWorkflowType:                   wf.CreateUser,
+		UpdateUserWorkflowType:                   wf.UpdateUser,
+		DeleteUserWorkflowType:                   wf.DeleteUser,
+		ReconcileUserWorkflowType:                wf.ReconcileUser,
+		ReconcileUsersWorkflowType:               wf.ReconcileUsers,
+	} {
+		w.RegisterWorkflowWithOptions(v, workflow.RegisterOptions{Name: k})
 	}
 }
 
@@ -64,21 +109,52 @@ func (w *workflows) GetUsers(ctx workflow.Context, in *cloudservice.GetUsersRequ
 	return activities.GetUsers(withInfiniteRetryActivityOptions(ctx), in)
 }
 
+func (w *workflows) getAllUsers(ctx workflow.Context, email, namespace string) ([]*identity.User, error) {
+	var (
+		users     = make([]*identity.User, 0)
+		pageToken = ""
+	)
+	for {
+		resp, err := w.GetUsers(ctx, &cloudservice.GetUsersRequest{
+			Email:     email,
+			Namespace: namespace,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, resp.Users...)
+		if resp.NextPageToken == "" {
+			break
+		}
+		pageToken = resp.NextPageToken
+	}
+	return users, nil
+}
+
+// Get all known Users
+func (w *workflows) GetAllUsers(ctx workflow.Context) ([]*identity.User, error) {
+	return w.getAllUsers(ctx, "", "")
+}
+
 // Get the user with email
 func (w *workflows) GetUserWithEmail(ctx workflow.Context, email string) (*identity.User, error) {
-	resp, err := w.GetUsers(ctx, &cloudservice.GetUsersRequest{
-		Email: email,
-	})
+	users, err := w.getAllUsers(ctx, email, "")
 	if err != nil {
 		return nil, err
 	}
-	if len(resp.Users) == 0 {
+	if len(users) == 0 {
 		return nil, nil
 	}
-	if len(resp.Users) > 1 {
+	if len(users) > 1 {
 		return nil, fmt.Errorf("multiple users found for email %s", email)
 	}
-	return resp.Users[0], nil
+	return users[0], nil
+}
+
+// Get all the users who have access to namespace
+func (w *workflows) GetAllUsersWithAccessToNamespace(ctx workflow.Context, namespace string) ([]*identity.User, error) {
+	return w.getAllUsers(ctx, "", namespace)
 }
 
 // Create a user

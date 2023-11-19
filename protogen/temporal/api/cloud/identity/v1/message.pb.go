@@ -316,6 +316,7 @@ type User struct {
 	// The date and time when the user was created
 	CreatedTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_time,json=createdTime,proto3" json:"created_time,omitempty"`
 	// The date and time when the user was last modified
+	// Will not be set if the user has never been modified.
 	LastModifiedTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=last_modified_time,json=lastModifiedTime,proto3" json:"last_modified_time,omitempty"`
 }
 
