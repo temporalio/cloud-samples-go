@@ -263,7 +263,7 @@ func (w *workflows) ReconcileUser(ctx workflow.Context, in *ReconcileUserInput) 
 	return out, nil
 }
 
-// Reconcile a user, create the user if one does not exist, or update the user if one does exist.
+// Reconcile multiple users, create missing users, update existing users, and optionally delete unaccounted users.
 func (w *workflows) ReconcileUsers(ctx workflow.Context, in *ReconcileUsersInput) (*ReconcileUsersOutput, error) {
 	if err := validator.ValidateStruct(in); err != nil {
 		return nil, fmt.Errorf("invalid input: %s", err)

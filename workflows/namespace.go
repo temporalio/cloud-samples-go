@@ -247,7 +247,7 @@ func (w *workflows) ReconcileNamespace(ctx workflow.Context, in *ReconcileNamesp
 	return out, nil
 }
 
-// Reconcile a namespace, create the namespace if one does not exist, or update the namespace if one does exist.
+// Reconcile multiple namespaces, create missing namespaces, update existing namespaces, and optionally delete unaccounted namespaces.
 func (w *workflows) ReconcileNamespaces(ctx workflow.Context, in *ReconcileNamespacesInput) (*ReconcileNamespacesOutput, error) {
 	if err := validator.ValidateStruct(in); err != nil {
 		return nil, fmt.Errorf("invalid input: %s", err)
