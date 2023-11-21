@@ -5,6 +5,10 @@ install: buf-install grpc-install
 
 # Run all linters and compile proto files.
 proto: copy-api-cloud-api grpc
+
+# Build the worker.
+bins: worker
+
 ########################################################################
 
 ##### Variables ######
@@ -52,7 +56,10 @@ grpc-install:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
+##### Build #####
+worker: clean
+	@go build -o worker ./cmd/worker/*.go
+
 ##### Clean #####
 clean:
-	printf $(COLOR) "Delete generated go files..."
-	rm -rf $(PROTO_OUT)
+	@rm -rf ./worker
