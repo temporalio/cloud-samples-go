@@ -32,12 +32,11 @@ const (
 	ReconcileUsersWorkflowType               = workflowPrefix + "reconcile-users"
 
 	// reconcile outcomes
-	ReconcileOutcomeCreated     = "created"
-	ReconcileOutcomeDeleted     = "deleted"
-	ReconcileOutcomeUpdated     = "updated"
-	ReconcileOutcomeUnchanged   = "unchanged"
-	ReconcileOutcomeUnaccounted = "unaccounted"
-	ReconcileOutcomeError       = "error"
+	ReconcileOutcomeCreated   = "created"
+	ReconcileOutcomeDeleted   = "deleted"
+	ReconcileOutcomeUpdated   = "updated"
+	ReconcileOutcomeUnchanged = "unchanged"
+	ReconcileOutcomeError     = "error"
 )
 
 type (
@@ -185,6 +184,11 @@ func (w *workflows) reconcileUser(ctx workflow.Context, spec *identity.UserSpec,
 		}
 		if user != nil {
 			out.User = user
+		} else if spec != nil {
+			out.User = &identity.User{
+				Id:   userID,
+				Spec: spec,
+			}
 		}
 	}()
 	if user == nil {
@@ -219,6 +223,7 @@ func (w *workflows) reconcileUser(ctx workflow.Context, spec *identity.UserSpec,
 		// nothing to change, get the latest user and return
 		userID = user.Id
 		out.Outcome = ReconcileOutcomeUnchanged
+		return out, nil
 	}
 
 	if asyncOpID != "" {
@@ -265,7 +270,7 @@ func (w *workflows) ReconcileUsers(ctx workflow.Context, in *ReconcileUsersInput
 	}
 	var (
 		getUsersReq = &cloudservice.GetUsersRequest{}
-		users       = make(map[string]*identity.User)
+		users       = make([]*identity.User, 0)
 		out         = &ReconcileUsersOutput{}
 	)
 	for {
@@ -273,9 +278,7 @@ func (w *workflows) ReconcileUsers(ctx workflow.Context, in *ReconcileUsersInput
 		if err != nil {
 			return nil, err
 		}
-		for i := range resp.Users {
-			users[resp.Users[i].Spec.Email] = resp.Users[i]
-		}
+		users = append(users, resp.Users...)
 		if resp.NextPageToken == "" {
 			break
 		}
@@ -283,14 +286,16 @@ func (w *workflows) ReconcileUsers(ctx workflow.Context, in *ReconcileUsersInput
 	}
 	for i := range in.Specs {
 		var user *identity.User
-		if u, ok := users[in.Specs[i].Email]; ok {
-			user = u
+		for _, u := range users {
+			if u.Spec.Email == in.Specs[i].Email {
+				user = u
+				users = append(users[:i], users[i+1:]...) // remove the user from the list
+				break
+			}
 		}
 		// reconcile the user
 		o, _ := w.reconcileUser(ctx, in.Specs[i], user)
 		out.Results = append(out.Results, o)
-		// remove the reconciled users from the map
-		delete(users, in.Specs[i].Email)
 	}
 	// whats left in maps is only the unaccounted users
 	for _, u := range users {
@@ -307,11 +312,6 @@ func (w *workflows) ReconcileUsers(ctx workflow.Context, in *ReconcileUsersInput
 				o.setError(err)
 			}
 			out.Results = append(out.Results, o)
-		} else {
-			out.Results = append(out.Results, &ReconcileUserOutput{
-				User:    u,
-				Outcome: ReconcileOutcomeUnaccounted,
-			})
 		}
 	}
 	return out, nil

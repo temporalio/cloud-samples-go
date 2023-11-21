@@ -254,7 +254,7 @@ func (w *workflows) ReconcileNamespaces(ctx workflow.Context, in *ReconcileNames
 	}
 	var (
 		getNamespacesReq = &cloudservice.GetNamespacesRequest{}
-		namespaces       = make(map[string]*namespace.Namespace)
+		namespaces       = make([]*namespace.Namespace, 0)
 		out              = &ReconcileNamespacesOutput{}
 	)
 	for {
@@ -262,9 +262,7 @@ func (w *workflows) ReconcileNamespaces(ctx workflow.Context, in *ReconcileNames
 		if err != nil {
 			return nil, err
 		}
-		for i := range resp.Namespaces {
-			namespaces[resp.Namespaces[i].Spec.Name] = resp.Namespaces[i]
-		}
+		namespaces = append(namespaces, resp.Namespaces...)
 		if resp.NextPageToken == "" {
 			break
 		}
@@ -272,14 +270,16 @@ func (w *workflows) ReconcileNamespaces(ctx workflow.Context, in *ReconcileNames
 	}
 	for i := range in.Specs {
 		var namespace *namespace.Namespace
-		if ns, ok := namespaces[in.Specs[i].Name]; ok {
-			namespace = ns
+		for _, ns := range namespaces {
+			if ns.Namespace == in.Specs[i].Name {
+				namespace = ns
+				namespaces = append(namespaces[:i], namespaces[i+1:]...) // remove the namespace from the list
+				break
+			}
 		}
 		// reconcile the namespace
 		o, _ := w.reconcileNamespace(ctx, in.Specs[i], namespace)
 		out.Results = append(out.Results, o)
-		// remove the reconciled namespaces from the map
-		delete(namespaces, in.Specs[i].Name)
 	}
 	// whats left in maps is only the unaccounted namespaces
 	for _, ns := range namespaces {
@@ -296,11 +296,6 @@ func (w *workflows) ReconcileNamespaces(ctx workflow.Context, in *ReconcileNames
 				o.setError(err)
 			}
 			out.Results = append(out.Results, o)
-		} else {
-			out.Results = append(out.Results, &ReconcileNamespaceOutput{
-				Namespace: ns,
-				Outcome:   ReconcileOutcomeUnaccounted,
-			})
 		}
 	}
 	return out, nil
