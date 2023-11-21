@@ -10,7 +10,7 @@ import (
 const (
 	// region workflow types
 	GetRegionWorkflowType     = workflowPrefix + "get-region"
-	GetAllRegionsWorkflowType = workflowPrefix + "get-regions"
+	GetAllRegionsWorkflowType = workflowPrefix + "get-all-regions"
 )
 
 type (
