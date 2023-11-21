@@ -252,26 +252,15 @@ func (w *workflows) ReconcileNamespaces(ctx workflow.Context, in *ReconcileNames
 	if err := validator.ValidateStruct(in); err != nil {
 		return nil, fmt.Errorf("invalid input: %s", err)
 	}
-	var (
-		getNamespacesReq = &cloudservice.GetNamespacesRequest{}
-		namespaces       = make([]*namespace.Namespace, 0)
-		out              = &ReconcileNamespacesOutput{}
-	)
-	for {
-		resp, err := w.GetNamespaces(ctx, getNamespacesReq)
-		if err != nil {
-			return nil, err
-		}
-		namespaces = append(namespaces, resp.Namespaces...)
-		if resp.NextPageToken == "" {
-			break
-		}
-		getNamespacesReq.PageToken = resp.NextPageToken
+	namespaces, err := w.GetAllNamespaces(ctx)
+	if err != nil {
+		return nil, err
 	}
+	out := &ReconcileNamespacesOutput{}
 	for i := range in.Specs {
 		var namespace *namespace.Namespace
 		for _, ns := range namespaces {
-			if ns.Namespace == in.Specs[i].Name {
+			if ns.Spec.Name == in.Specs[i].Name {
 				namespace = ns
 				namespaces = append(namespaces[:i], namespaces[i+1:]...) // remove the namespace from the list
 				break

@@ -268,22 +268,11 @@ func (w *workflows) ReconcileUsers(ctx workflow.Context, in *ReconcileUsersInput
 	if err := validator.ValidateStruct(in); err != nil {
 		return nil, fmt.Errorf("invalid input: %s", err)
 	}
-	var (
-		getUsersReq = &cloudservice.GetUsersRequest{}
-		users       = make([]*identity.User, 0)
-		out         = &ReconcileUsersOutput{}
-	)
-	for {
-		resp, err := w.GetUsers(ctx, getUsersReq)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, resp.Users...)
-		if resp.NextPageToken == "" {
-			break
-		}
-		getUsersReq.PageToken = resp.NextPageToken
+	users, err := w.GetAllUsers(ctx)
+	if err != nil {
+		return nil, err
 	}
+	out := &ReconcileUsersOutput{}
 	for i := range in.Specs {
 		var user *identity.User
 		for _, u := range users {
