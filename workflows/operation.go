@@ -15,8 +15,8 @@ import (
 
 const (
 	// async operation workflow types
-	GetAsynOperationWorkflowType = workflowPrefix + "get-async-operation"
-	WaitForAsyncOperationType    = workflowPrefix + "wait-for-async-operation"
+	GetAsyncOperationWorkflowType = workflowPrefix + "get-async-operation"
+	WaitForAsyncOperationType     = workflowPrefix + "wait-for-async-operation"
 )
 
 type (
@@ -30,22 +30,22 @@ type (
 
 	AsyncOperationWorkflows interface {
 		// Async Operations Workflows
-		GetAsynOperation(ctx workflow.Context, in *cloudservice.GetAsyncOperationRequest) (*cloudservice.GetAsyncOperationResponse, error)
+		GetAsyncOperation(ctx workflow.Context, in *cloudservice.GetAsyncOperationRequest) (*cloudservice.GetAsyncOperationResponse, error)
 		WaitForAsyncOperation(ctx workflow.Context, in *WaitForAsyncOperationInput) (*WaitForAsyncOperationOutput, error)
 	}
 )
 
 func registerAsyncOperationWorkflows(w worker.Worker, wf AsyncOperationWorkflows) {
 	for k, v := range map[string]any{
-		GetAsynOperationWorkflowType: wf.GetAsynOperation,
-		WaitForAsyncOperationType:    wf.WaitForAsyncOperation,
+		GetAsyncOperationWorkflowType: wf.GetAsyncOperation,
+		WaitForAsyncOperationType:     wf.WaitForAsyncOperation,
 	} {
 		w.RegisterWorkflowWithOptions(v, workflow.RegisterOptions{Name: k})
 	}
 }
 
 // Get a async operation
-func (w *workflows) GetAsynOperation(ctx workflow.Context, in *cloudservice.GetAsyncOperationRequest) (*cloudservice.GetAsyncOperationResponse, error) {
+func (w *workflows) GetAsyncOperation(ctx workflow.Context, in *cloudservice.GetAsyncOperationRequest) (*cloudservice.GetAsyncOperationResponse, error) {
 	return activities.GetAsyncOperation(withInfiniteRetryActivityOptions(ctx), in)
 }
 
@@ -60,7 +60,7 @@ func (w *workflows) WaitForAsyncOperation(ctx workflow.Context, in *WaitForAsync
 	)
 	selector := workflow.NewSelector(ctx)
 	getReqStatusFn := func(_ workflow.Future) {
-		resp, err = w.GetAsynOperation(ctx, &cloudservice.GetAsyncOperationRequest{
+		resp, err = w.GetAsyncOperation(ctx, &cloudservice.GetAsyncOperationRequest{
 			AsyncOperationId: in.AsyncOperationID,
 		})
 	}
