@@ -8,6 +8,7 @@ import (
 	"github.com/temporalio/cloud-samples-go/client/temporal"
 	"github.com/temporalio/cloud-samples-go/workflows"
 	"go.temporal.io/sdk/client"
+	"go.temporal.io/sdk/converter"
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/server/common/log"
 
@@ -50,10 +51,25 @@ func main() {
 	}
 }
 
+func getDataConverter() converter.DataConverter {
+
+	return converter.NewCompositeDataConverter(
+		converter.NewNilPayloadConverter(),
+		converter.NewByteSlicePayloadConverter(),
+		converter.NewProtoJSONPayloadConverterWithOptions(converter.ProtoJSONPayloadConverterOptions{
+			UseProtoNames: true,
+		}),
+		converter.NewProtoPayloadConverter(),
+		converter.NewJSONPayloadConverter(),
+	)
+}
+
 func newTemporalClient(logger *zap.Logger) (client.Client, error) {
 	ns := os.Getenv(temporalCloudNamespaceEnvName)
 	if ns == "" {
-		return client.Dial(client.Options{})
+		return client.Dial(client.Options{
+			DataConverter: getDataConverter(),
+		})
 	}
 	return temporal.GetTemporalCloudNamespaceClient(&temporal.GetTemporalCloudNamespaceClientInput{
 		Namespace:       ns,
