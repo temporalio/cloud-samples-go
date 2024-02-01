@@ -10,5 +10,3 @@ The proto definition for exported workflows is located here: [temporalio/api](ht
 exporttool /path/to/exported/file
 ```
 
-
-
