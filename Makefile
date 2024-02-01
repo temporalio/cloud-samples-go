@@ -56,10 +56,23 @@ grpc-install:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
+bins: clean worker exporttool
+
 ##### Build #####
-worker: clean
+.PHONY: worker
+worker:
+	@rm -rf ./worker
 	@go build -o worker ./cmd/worker/*.go
 
-##### Clean #####
+.PHONY: exporttool
+exporttool:
+	@rm -rf ./exporttool
+	@go build -o exporttool ./cmd/exporttool/*.go
+
 clean:
 	@rm -rf ./worker
+	@rm -rf ./exporttool
+
+
+	
+	
