@@ -99,8 +99,8 @@ github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXl
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.4.1/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
-go.temporal.io/api v1.26.1-0.20240131105424-ddb04b39ab26 h1:ueK5angxxhzefTcXx4TC0jqeslthRDPaQPO2YFXop+Q=
-go.temporal.io/api v1.26.1-0.20240131105424-ddb04b39ab26/go.mod h1:iASB2zPPR+FtFKn5w7/hF7AG2dkvkW7TTMAqL06tz0g=
+go.temporal.io/api v1.27.0 h1:M7a7p3A/gIKEMAYVBQD+/2hfzh/hC0410393TwD20Ko=
+go.temporal.io/api v1.27.0/go.mod h1:iASB2zPPR+FtFKn5w7/hF7AG2dkvkW7TTMAqL06tz0g=
 go.temporal.io/sdk v1.25.1 h1:jC9l9vHHz5OJ7PR6OjrpYSN4+uEG0bLe5rdF9nlMSGk=
 go.temporal.io/sdk v1.25.1/go.mod h1:X7iFKZpsj90BfszfpFCzLX8lwEJXbnRrl351/HyEgmU=
 go.temporal.io/server v1.22.4 h1:Pj0virq3yqMAzyBSerpCHvYBmvwjuQ6DVDbERO9jYx4=

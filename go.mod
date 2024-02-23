@@ -6,7 +6,7 @@ require (
 	github.com/go-playground/validator/v10 v10.15.3
 	github.com/gogo/protobuf v1.3.2
 	github.com/gogo/status v1.1.1
-	go.temporal.io/api v1.26.1-0.20240131105424-ddb04b39ab26
+	go.temporal.io/api v1.27.0
 	go.temporal.io/sdk v1.25.1
 	go.temporal.io/server v1.22.4
 	go.uber.org/zap v1.24.0
