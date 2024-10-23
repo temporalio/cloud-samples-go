@@ -7,11 +7,11 @@ import (
 )
 
 func (a *Activities) GetRegion(ctx context.Context, in *cloudservice.GetRegionRequest) (*cloudservice.GetRegionResponse, error) {
-	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.GetRegion)
+	return executeCloudAPIRequest(ctx, in, a.client.CloudService().GetRegion)
 }
 
 func (a *Activities) GetRegions(ctx context.Context, in *cloudservice.GetRegionsRequest) (*cloudservice.GetRegionsResponse, error) {
-	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.GetRegions)
+	return executeCloudAPIRequest(ctx, in, a.client.CloudService().GetRegions)
 }
 
 var (

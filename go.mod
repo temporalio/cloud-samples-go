@@ -4,8 +4,6 @@ go 1.23.2
 
 require (
 	github.com/go-playground/validator/v10 v10.22.1
-	github.com/gogo/protobuf v1.3.2
-	github.com/gogo/status v1.1.1
 	go.temporal.io/api v1.39.0
 	go.temporal.io/sdk v1.29.1
 	go.temporal.io/server v1.25.1
@@ -20,9 +18,8 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/gogo/googleapis v0.0.0-20180223154316-0cd9801be74a // indirect
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/mock v1.7.0-rc.1 // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0 // indirect

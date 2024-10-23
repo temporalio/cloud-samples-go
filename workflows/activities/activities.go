@@ -1,10 +1,9 @@
 package activities
 
 import (
-	"go.temporal.io/api/cloud/cloudservice/v1"
+	"github.com/temporalio/cloud-samples-go/client/api"
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/worker"
-	"google.golang.org/grpc"
 )
 
 const (
@@ -13,12 +12,12 @@ const (
 
 type (
 	Activities struct {
-		cloudserviceclient cloudservice.CloudServiceClient
+		client *api.Client
 	}
 )
 
-func NewActivities(conn grpc.ClientConnInterface) *Activities {
-	return &Activities{cloudserviceclient: cloudservice.NewCloudServiceClient(conn)}
+func NewActivities(client *api.Client) *Activities {
+	return &Activities{client: client}
 }
 
 func Register(w worker.Worker, activities *Activities) {

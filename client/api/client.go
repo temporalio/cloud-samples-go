@@ -2,69 +2,34 @@ package api
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
-	"net/url"
-	"strings"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
+	"go.temporal.io/sdk/client"
 )
 
-func NewConnectionWithAPIKey(addrStr string, allowInsecure bool, apiKey string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
-	return NewConnection(
-		addrStr,
-		allowInsecure,
-		append(opts, grpc.WithPerRPCCredentials(NewAPIKeyRPCCredential(apiKey, allowInsecure)))...,
-	)
+type Client struct {
+	client.CloudOperationsClient
 }
 
-func NewConnection(addrStr string, allowInsecure bool, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
-	addr, err := url.Parse(addrStr)
-	if err != nil {
-		return nil, fmt.Errorf("unable to parse server address: %s", err)
-	}
-	defaultOpts, err := defaultDialOptions(addr, allowInsecure)
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate default dial options: %s", err)
-	}
+var (
+	_ client.CloudOperationsClient = &Client{}
 
-	conn, err := grpc.Dial(
-		addr.String(),
-		append(defaultOpts, opts...)...,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to dial `%s`: %v", addr.String(), err)
-	}
-	return conn, nil
-}
+	TemporalCloudAPIVersion = "2023-10-01-00"
+)
 
-func defaultDialOptions(addr *url.URL, allowInsecure bool) ([]grpc.DialOption, error) {
-	var opts []grpc.DialOption
+func NewConnectionWithAPIKey(addrStr string, allowInsecure bool, apiKey string) (*Client, error) {
 
-	transport := credentials.NewTLS(&tls.Config{
-		MinVersion: tls.VersionTLS12,
-		ServerName: addr.Hostname(),
+	var cClient client.CloudOperationsClient
+	var err error
+	cClient, err = client.DialCloudOperationsClient(context.Background(), client.CloudOperationsClientOptions{
+		Version:     TemporalCloudAPIVersion,
+		Credentials: client.NewAPIKeyStaticCredentials(apiKey),
+		DisableTLS:  allowInsecure,
+		HostPort:    addrStr,
 	})
-	if allowInsecure {
-		transport = insecure.NewCredentials()
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect `%s`: %v", client.DefaultHostPort, err)
 	}
 
-	opts = append(opts, grpc.WithTransportCredentials(transport))
-	opts = append(opts, grpc.WithUnaryInterceptor(setAPIVersionInterceptor))
-	return opts, nil
-}
-
-func setAPIVersionInterceptor(
-	ctx context.Context,
-	method string,
-	req, reply interface{},
-	cc *grpc.ClientConn,
-	invoker grpc.UnaryInvoker,
-	opts ...grpc.CallOption,
-) error {
-	ctx = metadata.AppendToOutgoingContext(ctx, TemporalCloudAPIVersionHeader, strings.TrimSpace(TemporalCloudAPIVersion))
-	return invoker(ctx, method, req, reply, cc, opts...)
+	return &Client{cClient}, nil
 }

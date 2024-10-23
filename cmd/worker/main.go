@@ -39,11 +39,11 @@ func main() {
 	defer c.Close()
 	w := newWorker(c)
 
-	conn, err := api.NewConnectionWithAPIKey(temporalCloudAPIAddress, false, apikey)
+	client, err := api.NewConnectionWithAPIKey(temporalCloudAPIAddress, false, apikey)
 	if err != nil {
 		panic(fmt.Errorf("failed to create cloud api connection: %+v", err))
 	}
-	workflows.Register(w, workflows.NewWorkflows(), workflows.NewActivities(conn))
+	workflows.Register(w, workflows.NewWorkflows(), workflows.NewActivities(client))
 	err = w.Run(worker.InterruptCh())
 	if err != nil {
 		panic(fmt.Errorf("failed to run worker: %+v", err))
