@@ -1,7 +1,7 @@
 package workflows
 
 import (
-	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/cloudservice/v1"
+	"go.temporal.io/api/cloud/cloudservice/v1"
 	"github.com/temporalio/cloud-samples-go/workflows/activities"
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"

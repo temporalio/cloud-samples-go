@@ -3,7 +3,7 @@ package activities
 import (
 	"context"
 
-	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/cloudservice/v1"
+	"go.temporal.io/api/cloud/cloudservice/v1"
 )
 
 func (a *Activities) GetNamespace(ctx context.Context, in *cloudservice.GetNamespaceRequest) (*cloudservice.GetNamespaceResponse, error) {

@@ -1,7 +1,7 @@
 package activities
 
 import (
-	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/cloudservice/v1"
+	"go.temporal.io/api/cloud/cloudservice/v1"
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/worker"
 	"google.golang.org/grpc"
