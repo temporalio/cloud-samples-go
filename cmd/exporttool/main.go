@@ -38,13 +38,7 @@ func main() {
 
 		fmt.Println(info)
 
-		formattedWorkflow, err := export.FormatWorkflow(workflow)
-		if err != nil {
-			fmt.Printf("error formatting workflow: %v\r\n", err)
-			os.Exit(1)
-		}
-
-		fmt.Println(formattedWorkflow)
+		fmt.Println(export.FormatWorkflow(workflow))
 		fmt.Println("----------------------------------------------------------")
 		fmt.Println()
 	}

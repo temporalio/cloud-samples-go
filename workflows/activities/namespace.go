@@ -3,27 +3,27 @@ package activities
 import (
 	"context"
 
-	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/cloudservice/v1"
+	"go.temporal.io/api/cloud/cloudservice/v1"
 )
 
 func (a *Activities) GetNamespace(ctx context.Context, in *cloudservice.GetNamespaceRequest) (*cloudservice.GetNamespaceResponse, error) {
-	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.GetNamespace)
+	return executeCloudAPIRequest(ctx, in, a.client.CloudService().GetNamespace)
 }
 
 func (a *Activities) GetNamespaces(ctx context.Context, in *cloudservice.GetNamespacesRequest) (*cloudservice.GetNamespacesResponse, error) {
-	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.GetNamespaces)
+	return executeCloudAPIRequest(ctx, in, a.client.CloudService().GetNamespaces)
 }
 
 func (a *Activities) CreateNamespace(ctx context.Context, in *cloudservice.CreateNamespaceRequest) (*cloudservice.CreateNamespaceResponse, error) {
-	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.CreateNamespace)
+	return executeCloudAPIRequest(ctx, in, a.client.CloudService().CreateNamespace)
 }
 
 func (a *Activities) UpdateNamespace(ctx context.Context, in *cloudservice.UpdateNamespaceRequest) (*cloudservice.UpdateNamespaceResponse, error) {
-	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.UpdateNamespace)
+	return executeCloudAPIRequest(ctx, in, a.client.CloudService().UpdateNamespace)
 }
 
 func (a *Activities) DeleteNamespace(ctx context.Context, in *cloudservice.DeleteNamespaceRequest) (*cloudservice.DeleteNamespaceResponse, error) {
-	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.DeleteNamespace)
+	return executeCloudAPIRequest(ctx, in, a.client.CloudService().DeleteNamespace)
 }
 
 var (

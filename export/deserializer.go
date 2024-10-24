@@ -3,7 +3,7 @@ package export
 import (
 	"fmt"
 
-	"github.com/gogo/protobuf/jsonpb"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
 	"go.temporal.io/api/common/v1"
@@ -27,13 +27,12 @@ func DeserializeExportedWorkflows(bytes []byte) (*export.WorkflowExecutions, err
 }
 
 // FormatWorkflow converts an exported workflow execution into a friendly, human-readable string
-func FormatWorkflow(workflow *export.WorkflowExecution) (string, error) {
-	marshaler := jsonpb.Marshaler{
-		Indent:       "\t",
-		EmitDefaults: true,
+func FormatWorkflow(workflow *export.WorkflowExecution) string {
+	pbMarshaler := protojson.MarshalOptions{
+		Indent:            "\t",
+		EmitDefaultValues: true,
 	}
-
-	return marshaler.MarshalToString(workflow.History)
+	return pbMarshaler.Format(workflow)
 }
 
 // GetExportedWorkflowInformation returns a string containing the workflow ID, run ID, and workflow type

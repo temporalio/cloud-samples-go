@@ -3,11 +3,11 @@ package activities
 import (
 	"context"
 
-	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/cloudservice/v1"
+	"go.temporal.io/api/cloud/cloudservice/v1"
 )
 
 func (a *Activities) GetAsyncOperation(ctx context.Context, in *cloudservice.GetAsyncOperationRequest) (*cloudservice.GetAsyncOperationResponse, error) {
-	return a.cloudserviceclient.GetAsyncOperation(ctx, in)
+	return a.client.CloudService().GetAsyncOperation(ctx, in)
 }
 
 var GetAsyncOperation = executeActivityFn[*cloudservice.GetAsyncOperationRequest, *cloudservice.GetAsyncOperationResponse](activitiesPrefix + "GetAsyncOperation")

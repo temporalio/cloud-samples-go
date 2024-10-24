@@ -11,8 +11,8 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/temporalio/cloud-samples-go/internal/validator"
-	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/cloudservice/v1"
-	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/namespace/v1"
+	"go.temporal.io/api/cloud/cloudservice/v1"
+	"go.temporal.io/api/cloud/namespace/v1"
 	"github.com/temporalio/cloud-samples-go/workflows/activities"
 )
 

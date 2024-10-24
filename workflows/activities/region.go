@@ -3,15 +3,15 @@ package activities
 import (
 	"context"
 
-	"github.com/temporalio/cloud-samples-go/protogen/temporal/api/cloud/cloudservice/v1"
+	"go.temporal.io/api/cloud/cloudservice/v1"
 )
 
 func (a *Activities) GetRegion(ctx context.Context, in *cloudservice.GetRegionRequest) (*cloudservice.GetRegionResponse, error) {
-	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.GetRegion)
+	return executeCloudAPIRequest(ctx, in, a.client.CloudService().GetRegion)
 }
 
 func (a *Activities) GetRegions(ctx context.Context, in *cloudservice.GetRegionsRequest) (*cloudservice.GetRegionsResponse, error) {
-	return executeCloudAPIRequest(ctx, in, a.cloudserviceclient.GetRegions)
+	return executeCloudAPIRequest(ctx, in, a.client.CloudService().GetRegions)
 }
 
 var (
