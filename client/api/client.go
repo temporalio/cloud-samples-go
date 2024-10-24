@@ -14,7 +14,7 @@ type Client struct {
 var (
 	_ client.CloudOperationsClient = &Client{}
 
-	TemporalCloudAPIVersion = "2023-10-01-00"
+	TemporalCloudAPIVersion = "2024-05-13-00"
 )
 
 func NewConnectionWithAPIKey(addrStr string, allowInsecure bool, apiKey string) (*Client, error) {
