@@ -15,10 +15,6 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-const (
-	localTemporalHostPort = "localhost:7233"
-)
-
 type (
 	ApiKeyAuth struct {
 		// The api key to use for the client
