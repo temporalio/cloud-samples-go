@@ -1,7 +1,7 @@
 (VERBOSE).SILENT:
 ############################# Main targets #############################
-# Build the worker.
-bins: worker
+# Build the binaries.
+bins: clean worker exporttool
 
 ########################################################################
 
