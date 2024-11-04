@@ -2,13 +2,12 @@ package workflows
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/temporalio/cloud-samples-go/internal/validator"
+	"github.com/temporalio/cloud-samples-go/workflows/activities"
 	"go.temporal.io/api/cloud/cloudservice/v1"
 	"go.temporal.io/api/cloud/operation/v1"
-	"github.com/temporalio/cloud-samples-go/workflows/activities"
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"
 )
@@ -76,13 +75,13 @@ func (w *workflows) WaitForAsyncOperation(ctx workflow.Context, in *WaitForAsync
 		if err != nil {
 			return nil, err
 		}
-		switch {
-		case strings.EqualFold(resp.AsyncOperation.State, "FAILED"):
+		switch resp.AsyncOperation.State {
+		case operation.AsyncOperation_STATE_FAILED:
 			return nil, fmt.Errorf("request failed: %s", resp.AsyncOperation.FailureReason)
-		case strings.EqualFold(resp.AsyncOperation.State, "FULFILLED"):
-			return &WaitForAsyncOperationOutput{
-				AsyncOperation: resp.AsyncOperation,
-			}, nil
+		case operation.AsyncOperation_STATE_CANCELLED:
+			return nil, fmt.Errorf("request cancelled: %s", resp.AsyncOperation.FailureReason)
+		case operation.AsyncOperation_STATE_FULFILLED:
+			return &WaitForAsyncOperationOutput{AsyncOperation: resp.AsyncOperation}, nil
 		default:
 			selector.AddFuture(workflow.NewTimer(ctx, resp.AsyncOperation.CheckDuration.AsDuration()), getReqStatusFn)
 		}

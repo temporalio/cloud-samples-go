@@ -16,9 +16,7 @@ import (
 )
 
 const (
-	temporalCloudAPIAddress    = "saas-api.tmprl.cloud:443"
-	temporalCloudAPIKeyEnvName = "TEMPORAL_CLOUD_API_KEY"
-
+	temporalCloudAPIKeyEnvName           = "TEMPORAL_CLOUD_API_KEY"
 	temporalCloudNamespaceEnvName        = "TEMPORAL_CLOUD_NAMESPACE"
 	temporalCloudNamespaceAPIKeyEnvName  = "TEMPORAL_CLOUD_NAMESPACE_API_KEY"
 	temporalCloudNamespaceTLSCertPathEnv = "TEMPORAL_CLOUD_NAMESPACE_TLS_CERT"
@@ -41,7 +39,7 @@ func main() {
 	defer c.Close()
 	w := newWorker(c)
 
-	client, err := api.NewConnectionWithAPIKey(temporalCloudAPIAddress, false, apikey)
+	client, err := api.NewConnectionWithAPIKey(api.TemporalCloudAPIAddress, false, apikey)
 	if err != nil {
 		panic(fmt.Errorf("failed to create cloud api connection: %+v", err))
 	}
