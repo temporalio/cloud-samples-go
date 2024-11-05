@@ -18,7 +18,7 @@ TEMPORAL_CLOUD_API_KEY=<apikey> go run ./cmd/worker
 
 Or start the worker that connects to a cloud namespace run:
 ```
-TEMPORAL_CLOUD_NAMESPACE=<namespace.accountId> TEMPORAL_CLOUD_TLS_CERT=</path/to/cert.pem> TEMPORAL_CLOUD_TLS_KEY=</path/to/cert.key> TEMPORAL_CLOUD_API_KEY=<apikey> go run ./cmd/worker
+TEMPORAL_CLOUD_NAMESPACE=<namespace.accountId> TEMPORAL_CLOUD_NAMESPACE_TLS_CERT=</path/to/cert.pem> TEMPORAL_CLOUD_NAMESPACE_TLS_KEY=</path/to/cert.key> TEMPORAL_CLOUD_API_KEY=<apikey> go run ./cmd/worker
 ```
 
 
