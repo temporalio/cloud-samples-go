@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -15,12 +16,11 @@ import (
 )
 
 const (
-	temporalCloudAPIAddress    = "saas-api.tmprl.cloud:443"
-	temporalCloudAPIKeyEnvName = "TEMPORAL_CLOUD_API_KEY"
-
-	temporalCloudNamespaceEnvName = "TEMPORAL_CLOUD_NAMESPACE"
-	temporalCloudTLSCertPathEnv   = "TEMPORAL_CLOUD_TLS_CERT"
-	temporalCloudTLSKeyPathEnv    = "TEMPORAL_CLOUD_TLS_KEY"
+	temporalCloudAPIKeyEnvName           = "TEMPORAL_CLOUD_API_KEY"
+	temporalCloudNamespaceEnvName        = "TEMPORAL_CLOUD_NAMESPACE"
+	temporalCloudNamespaceAPIKeyEnvName  = "TEMPORAL_CLOUD_NAMESPACE_API_KEY"
+	temporalCloudNamespaceTLSCertPathEnv = "TEMPORAL_CLOUD_NAMESPACE_TLS_CERT"
+	temporalCloudNamespaceTLSKeyPathEnv  = "TEMPORAL_CLOUD_NAMESPACE_TLS_KEY"
 )
 
 func main() {
@@ -39,11 +39,11 @@ func main() {
 	defer c.Close()
 	w := newWorker(c)
 
-	conn, err := api.NewConnectionWithAPIKey(temporalCloudAPIAddress, false, apikey)
+	client, err := api.NewConnectionWithAPIKey(api.TemporalCloudAPIAddress, false, apikey)
 	if err != nil {
 		panic(fmt.Errorf("failed to create cloud api connection: %+v", err))
 	}
-	workflows.Register(w, workflows.NewWorkflows(), workflows.NewActivities(conn))
+	workflows.Register(w, workflows.NewWorkflows(), workflows.NewActivities(client))
 	err = w.Run(worker.InterruptCh())
 	if err != nil {
 		panic(fmt.Errorf("failed to run worker: %+v", err))
@@ -55,12 +55,33 @@ func newTemporalClient(logger *zap.Logger) (client.Client, error) {
 	if ns == "" {
 		return client.Dial(client.Options{})
 	}
-	return temporal.GetTemporalCloudNamespaceClient(&temporal.GetTemporalCloudNamespaceClientInput{
-		Namespace:       ns,
-		TLSCertFilePath: os.Getenv(temporalCloudTLSCertPathEnv),
-		TLSKeyFilePath:  os.Getenv(temporalCloudTLSKeyPathEnv),
-		Logger:          log.NewSdkLogger(log.NewZapLogger(logger)),
-	})
+	var auth temporal.AuthType
+	if os.Getenv(temporalCloudNamespaceTLSKeyPathEnv) != "" || os.Getenv(temporalCloudNamespaceTLSCertPathEnv) != "" {
+		// if either of the TLS cert or key path is provided try to use mTLS
+		auth = &temporal.MtlsAuth{
+			TLSCertFilePath: os.Getenv(temporalCloudNamespaceTLSCertPathEnv),
+			TLSKeyFilePath:  os.Getenv(temporalCloudNamespaceTLSKeyPathEnv),
+		}
+	} else if os.Getenv(temporalCloudNamespaceAPIKeyEnvName) != "" {
+		// if a namespace specific API key is provided use it
+		auth = &temporal.ApiKeyAuth{
+			APIKey: os.Getenv(temporalCloudNamespaceAPIKeyEnvName),
+		}
+	} else {
+		// if no specific auth is provided fallback to using the API key provided for the control plane
+		auth = &temporal.ApiKeyAuth{
+			APIKey: os.Getenv(temporalCloudAPIKeyEnvName),
+		}
+	}
+
+	return temporal.GetTemporalCloudNamespaceClient(
+		context.Background(),
+		&temporal.GetTemporalCloudNamespaceClientInput{
+			Namespace: ns,
+			Auth:      auth,
+			Logger:    log.NewSdkLogger(log.NewZapLogger(logger)),
+		},
+	)
 }
 
 func newWorker(client client.Client) worker.Worker {

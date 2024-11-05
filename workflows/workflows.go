@@ -1,9 +1,9 @@
 package workflows
 
 import (
+	"github.com/temporalio/cloud-samples-go/client/api"
 	"github.com/temporalio/cloud-samples-go/workflows/activities"
 	"go.temporal.io/sdk/worker"
-	"google.golang.org/grpc"
 )
 
 //go:generate mockgen -source workflows.go -destination workflows_mock.go -package workflow
@@ -26,8 +26,8 @@ func NewWorkflows() Workflows {
 	return &workflows{}
 }
 
-func NewActivities(conn grpc.ClientConnInterface) *activities.Activities {
-	return activities.NewActivities(conn)
+func NewActivities(client *api.Client) *activities.Activities {
+	return activities.NewActivities(client)
 }
 
 func Register(w worker.Worker, wf Workflows, a *activities.Activities) {
