@@ -21,13 +21,17 @@ var (
 	TemporalCloudAPIVersion = "2024-10-01-00"
 )
 
-func NewConnectionWithAPIKey(addrStr string, allowInsecure bool, apiKey string) (*Client, error) {
+func NewConnectionWithAPIKey(
+	addrStr string,
+	allowInsecure bool,
+	getAPIKeyCallback func(ctx context.Context) (string, error),
+) (*Client, error) {
 
 	var cClient client.CloudOperationsClient
 	var err error
 	cClient, err = client.DialCloudOperationsClient(context.Background(), client.CloudOperationsClientOptions{
 		Version:     TemporalCloudAPIVersion,
-		Credentials: client.NewAPIKeyStaticCredentials(apiKey),
+		Credentials: client.NewAPIKeyDynamicCredentials(getAPIKeyCallback),
 		DisableTLS:  allowInsecure,
 		HostPort:    addrStr,
 		ConnectionOptions: client.ConnectionOptions{

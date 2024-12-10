@@ -5,10 +5,11 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net"
+	"os"
+	"sync"
+	"time"
 
-	"github.com/temporalio/cloud-samples-go/client/api"
 	"github.com/temporalio/cloud-samples-go/internal/validator"
-	cloudservicev1 "go.temporal.io/api/cloud/cloudservice/v1"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
 	"google.golang.org/grpc"
@@ -17,8 +18,10 @@ import (
 
 type (
 	ApiKeyAuth struct {
-		// The api key to use for the client
-		APIKey string
+		// The func that returns the api key to use
+		GetApiKeyCallback func(context.Context) (string, error) `required:"true"`
+		// The temporal cloud namespace's grpc endpoint address to connect to
+		GrpcAddress string `required:"false"`
 	}
 
 	MtlsAuth struct {
@@ -27,8 +30,8 @@ type (
 		GRPCEndpoint string
 		// The TLS cert and key file paths
 		// Read more about TLS in Temporal here: https://docs.temporal.io/cloud/Certificates
-		TLSCertFilePath string
-		TLSKeyFilePath  string
+		TLSCertFilePath string `required:"true"`
+		TLSKeyFilePath  string `required:"true"`
 	}
 
 	GetTemporalCloudNamespaceClientInput struct {
@@ -37,9 +40,6 @@ type (
 
 		// The auth to use for the client, defaults to local
 		Auth AuthType
-
-		// The API key to use for the client, defaults to no API key.
-		APIKey string
 
 		// The logger to use for the client, defaults to no logging
 		Logger log.Logger
@@ -51,22 +51,8 @@ type (
 )
 
 func (a *ApiKeyAuth) apply(options *client.Options) error {
-
-	c, err := api.NewConnectionWithAPIKey(api.TemporalCloudAPIAddress, false, a.APIKey)
-	if err != nil {
-		return fmt.Errorf("failed to create cloud api connection: %w", err)
-	}
-	resp, err := c.CloudService().GetNamespace(context.Background(), &cloudservicev1.GetNamespaceRequest{
-		Namespace: options.Namespace,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to get namespace %s: %w", options.Namespace, err)
-	}
-	if resp.GetNamespace().GetEndpoints().GetGrpcAddress() == "" {
-		return fmt.Errorf("namespace %q has no grpc address", options.Namespace)
-	}
-	options.HostPort = resp.GetNamespace().GetEndpoints().GetGrpcAddress()
-	options.Credentials = client.NewAPIKeyStaticCredentials(a.APIKey)
+	options.HostPort = a.GrpcAddress
+	options.Credentials = client.NewAPIKeyDynamicCredentials(a.GetApiKeyCallback)
 	options.ConnectionOptions = client.ConnectionOptions{
 		TLS: &tls.Config{},
 		DialOptions: []grpc.DialOption{
@@ -99,17 +85,43 @@ func (a *MtlsAuth) apply(options *client.Options) error {
 	if parseErr != nil {
 		return fmt.Errorf("failed to split hostport %s: %w", endpoint, parseErr)
 	}
-	var cert tls.Certificate
-	var err error
-	cert, err = tls.LoadX509KeyPair(a.TLSCertFilePath, a.TLSKeyFilePath)
-	if err != nil {
-		return fmt.Errorf("failed to load TLS from files: %w", err)
-	}
 	options.HostPort = endpoint
 	options.ConnectionOptions = client.ConnectionOptions{TLS: &tls.Config{
-		Certificates: []tls.Certificate{cert},
-		ServerName:   serverName,
+		ServerName: serverName,
 	}}
+	a.setClientCertAutoRefresh(options.ConnectionOptions.TLS)
+	return nil
+}
+
+func (a *MtlsAuth) setClientCertAutoRefresh(tlsConfig *tls.Config) error {
+	lastModifiedTime := time.Time{}
+	var clientCert *tls.Certificate
+	var mu sync.Mutex
+
+	tlsConfig.GetClientCertificate = func(_ *tls.CertificateRequestInfo) (*tls.Certificate, error) {
+		mu.Lock()
+		defer mu.Unlock()
+
+		fileInfo, err := os.Stat(a.TLSCertFilePath)
+		if err != nil {
+			return clientCert, fmt.Errorf("stat error for client tls cert: %w", err)
+		}
+
+		newModifiedTime := fileInfo.ModTime()
+		if newModifiedTime.Equal(lastModifiedTime) {
+			return clientCert, nil
+		}
+
+		newClientCert, err := tls.LoadX509KeyPair(a.TLSCertFilePath, a.TLSKeyFilePath)
+		if err != nil {
+			return clientCert, fmt.Errorf("failed to load TLS from files: %w", err)
+		}
+
+		lastModifiedTime = newModifiedTime
+		clientCert = &newClientCert
+		return clientCert, nil
+	}
+
 	return nil
 }
 
