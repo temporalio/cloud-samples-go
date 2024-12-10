@@ -8,6 +8,7 @@ import (
 	"github.com/temporalio/cloud-samples-go/client/api"
 	"github.com/temporalio/cloud-samples-go/client/temporal"
 	"github.com/temporalio/cloud-samples-go/workflows"
+	cloudservicev1 "go.temporal.io/api/cloud/cloudservice/v1"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/server/common/log"
@@ -28,18 +29,15 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	apikey, err := getAPIKeyFromEnv()
-	if err != nil {
-		panic(err)
-	}
-	c, err := newTemporalClient(logger)
+	ctx := context.Background()
+	c, err := newTemporalClient(ctx, logger)
 	if err != nil {
 		panic(fmt.Errorf("failed to create temporal client: %+v", err))
 	}
 	defer c.Close()
 	w := newWorker(c)
 
-	client, err := api.NewConnectionWithAPIKey(api.TemporalCloudAPIAddress, false, apikey)
+	client, err := api.NewConnectionWithAPIKey(api.TemporalCloudAPIAddress, false, getAPIKeyFromEnv)
 	if err != nil {
 		panic(fmt.Errorf("failed to create cloud api connection: %+v", err))
 	}
@@ -50,7 +48,7 @@ func main() {
 	}
 }
 
-func newTemporalClient(logger *zap.Logger) (client.Client, error) {
+func newTemporalClient(ctx context.Context, logger *zap.Logger) (client.Client, error) {
 	ns := os.Getenv(temporalCloudNamespaceEnvName)
 	if ns == "" {
 		return client.Dial(client.Options{})
@@ -62,20 +60,20 @@ func newTemporalClient(logger *zap.Logger) (client.Client, error) {
 			TLSCertFilePath: os.Getenv(temporalCloudNamespaceTLSCertPathEnv),
 			TLSKeyFilePath:  os.Getenv(temporalCloudNamespaceTLSKeyPathEnv),
 		}
-	} else if os.Getenv(temporalCloudNamespaceAPIKeyEnvName) != "" {
-		// if a namespace specific API key is provided use it
-		auth = &temporal.ApiKeyAuth{
-			APIKey: os.Getenv(temporalCloudNamespaceAPIKeyEnvName),
-		}
 	} else {
-		// if no specific auth is provided fallback to using the API key provided for the control plane
+		// fetch the grpc address using the namespace API key
+		grpcAddress, err := fetchGrpcAddressUsingAPIKey(ctx, ns, getNamespaceAPIKeyFromEnv)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch grpc address using namespace api key: %w", err)
+		}
 		auth = &temporal.ApiKeyAuth{
-			APIKey: os.Getenv(temporalCloudAPIKeyEnvName),
+			GetApiKeyCallback: getNamespaceAPIKeyFromEnv,
+			GrpcAddress:       grpcAddress,
 		}
 	}
 
 	return temporal.GetTemporalCloudNamespaceClient(
-		context.Background(),
+		ctx,
 		&temporal.GetTemporalCloudNamespaceClientInput{
 			Namespace: ns,
 			Auth:      auth,
@@ -92,10 +90,45 @@ func newWorker(client client.Client) worker.Worker {
 	return worker.New(client, "demo", wo)
 }
 
-func getAPIKeyFromEnv() (string, error) {
+func getAPIKeyFromEnv(ctx context.Context) (string, error) {
 	v := os.Getenv(temporalCloudAPIKeyEnvName)
 	if v == "" {
+		// if no API key is provided return an error
 		return "", fmt.Errorf("apikey not provided, set environment variable '%s' with apikey you want to use", temporalCloudAPIKeyEnvName)
 	}
 	return v, nil
+}
+
+func getNamespaceAPIKeyFromEnv(ctx context.Context) (string, error) {
+	v := os.Getenv(temporalCloudNamespaceAPIKeyEnvName)
+	if v == "" {
+		// fallback to using the control plane API key if no namespace specific API key is provided
+		v, _ = getAPIKeyFromEnv(ctx)
+	}
+	if v == "" {
+		// if no API key is provided return an error
+		return "", fmt.Errorf("namespace apikey not provided, set environment variable '%s' with apikey you want to use", temporalCloudNamespaceAPIKeyEnvName)
+	}
+	return v, nil
+}
+
+func fetchGrpcAddressUsingAPIKey(
+	ctx context.Context,
+	namespace string,
+	getAPIKeyFunc func(context.Context) (string, error),
+) (string, error) {
+	c, err := api.NewConnectionWithAPIKey(api.TemporalCloudAPIAddress, false, getAPIKeyFunc)
+	if err != nil {
+		return "", fmt.Errorf("failed to create cloud api connection: %w", err)
+	}
+	resp, err := c.CloudService().GetNamespace(ctx, &cloudservicev1.GetNamespaceRequest{
+		Namespace: namespace,
+	})
+	if err != nil {
+		return "", fmt.Errorf("failed to get namespace %q: %w", namespace, err)
+	}
+	if resp.GetNamespace().GetEndpoints().GetGrpcAddress() == "" {
+		return "", fmt.Errorf("namespace %q has no grpc address", namespace)
+	}
+	return resp.GetNamespace().GetEndpoints().GetGrpcAddress(), nil
 }
