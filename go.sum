@@ -104,6 +104,8 @@ go.opentelemetry.io/otel/trace v1.32.0 h1:WIC9mYrXf8TmY/EXuULKc8hR17vE+Hjv2cssQD
 go.opentelemetry.io/otel/trace v1.32.0/go.mod h1:+i4rkvCraA+tG6AzwloGaCtkx53Fa+L+V8e9a7YvhT8=
 go.temporal.io/api v1.44.0 h1:AhaSyyAjG0X09GUFO7z0ttp/c1e67CrL/FbdNFQ/HyA=
 go.temporal.io/api v1.44.0/go.mod h1:1WwYUMo6lao8yl0371xWUm13paHExN5ATYT/B7QtFis=
+go.temporal.io/cloud-sdk v0.1.0 h1:DhstMosx5R0IV1KB8RT9gdOShm0RkT/SB1+d0MO53Xk=
+go.temporal.io/cloud-sdk v0.1.0/go.mod h1:EQLHIomrMMhEGtb9fnpJw4UO6MNBYSJJz+tIrWsVbhI=
 go.temporal.io/server v1.25.1 h1:iDkzzDMdmOPZUctLegF5kWY/h1W/MTbMZ8hsBkHBIV4=
 go.temporal.io/server v1.25.1/go.mod h1:I/6PLZkyhCC9OyNfuBCYfmSEi7DCxanzC2378Pojlf0=
 go.uber.org/atomic v1.7.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=

@@ -46,6 +46,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace go.temporal.io/cloud-sdk => ../cloud-sdk-go
-
 replace go.temporal.io/sdk => ../sdk-go
