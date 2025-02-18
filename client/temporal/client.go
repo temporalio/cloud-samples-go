@@ -8,7 +8,7 @@ import (
 
 	"github.com/temporalio/cloud-samples-go/client/api"
 	"github.com/temporalio/cloud-samples-go/internal/validator"
-	cloudservicev1 "go.temporal.io/api/cloud/cloudservice/v1"
+	cloudservicev1 "go.temporal.io/cloud-sdk/api/cloudservice/v1"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
 	"google.golang.org/grpc"
@@ -52,7 +52,7 @@ type (
 
 func (a *ApiKeyAuth) apply(options *client.Options) error {
 
-	c, err := api.NewConnectionWithAPIKey(api.TemporalCloudAPIAddress, false, a.APIKey)
+	c, err := api.NewConnectionWithAPIKey(a.APIKey)
 	if err != nil {
 		return fmt.Errorf("failed to create cloud api connection: %w", err)
 	}

@@ -6,8 +6,8 @@ import (
 
 	"github.com/temporalio/cloud-samples-go/internal/validator"
 	"github.com/temporalio/cloud-samples-go/workflows/activities"
-	"go.temporal.io/api/cloud/cloudservice/v1"
-	"go.temporal.io/api/cloud/operation/v1"
+	"go.temporal.io/cloud-sdk/api/cloudservice/v1"
+	"go.temporal.io/cloud-sdk/api/operation/v1"
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"
 )

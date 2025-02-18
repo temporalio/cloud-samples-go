@@ -3,7 +3,7 @@ package activities
 import (
 	"context"
 
-	"go.temporal.io/api/cloud/cloudservice/v1"
+	"go.temporal.io/cloud-sdk/api/cloudservice/v1"
 )
 
 func (a *Activities) GetAsyncOperation(ctx context.Context, in *cloudservice.GetAsyncOperationRequest) (*cloudservice.GetAsyncOperationResponse, error) {
