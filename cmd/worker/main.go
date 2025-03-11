@@ -39,7 +39,7 @@ func main() {
 	defer c.Close()
 	w := newWorker(c)
 
-	client, err := api.NewConnectionWithAPIKey(api.TemporalCloudAPIAddress, false, apikey)
+	client, err := api.NewConnectionWithAPIKey(apikey)
 	if err != nil {
 		panic(fmt.Errorf("failed to create cloud api connection: %+v", err))
 	}
