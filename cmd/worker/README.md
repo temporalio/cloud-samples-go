@@ -69,3 +69,6 @@ tctl wf start --tq demo --wt tmprlcloud-wf.get-users -i '{}'
 - `tmprlcloud-wf.reconcile-namespace`: Reconcile a namespace
 - `tmprlcloud-wf.reconcile-namespaces`: Reconcile a list of namespaces
 
+### Audit Workflows
+- `tmprlcloud-wf.get-audit-logs`: Get audit logs
+
