@@ -14,6 +14,7 @@ const (
 
 type (
 	Workflows interface {
+                AuditWorkflows
 		UserWorkflows
 		NamespaceWorkflows
 		RegionWorkflows
@@ -32,6 +33,7 @@ func NewActivities(client *api.Client) *activities.Activities {
 
 func Register(w worker.Worker, wf Workflows, a *activities.Activities) {
 	// Register the workflows that we want to be able to use.
+        registerAuditWorkflows(w, wf)
 	registerUserWorkflows(w, wf)
 	registerNamespaceWorkflows(w, wf)
 	registerRegionWorkflows(w, wf)
