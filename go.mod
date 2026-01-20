@@ -5,7 +5,7 @@ go 1.23.2
 require (
 	github.com/go-playground/validator/v10 v10.22.1
 	go.temporal.io/api v1.45.0
-	go.temporal.io/cloud-sdk v0.2.0
+	go.temporal.io/cloud-sdk v0.7.1
 	go.temporal.io/sdk v1.33.0
 	go.temporal.io/server v1.25.1
 	go.uber.org/zap v1.27.0
