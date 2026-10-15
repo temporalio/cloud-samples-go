@@ -6,24 +6,17 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
-	"go.temporal.io/api/common/v1"
-	enumspb "go.temporal.io/api/enums/v1"
 	"go.temporal.io/api/export/v1"
 )
 
-// DeserializeExportedWorkflows deserializes a byte array into a WorkflowExecutions object. This is useful for programmatically processing workflow histories
-func DeserializeExportedWorkflows(bytes []byte) (*export.WorkflowExecutions, error) {
-	blob := &common.DataBlob{
-		EncodingType: enumspb.ENCODING_TYPE_PROTO3, // Currently workflow histories are only exported in proto3 format
-		Data:         bytes,
-	}
-
-	var workflows export.WorkflowExecutions
-	if err := proto.Unmarshal(blob.Data, &workflows); err != nil {
+// DeserializeExportedExecutions decodes a Protobuf export file containing workflow and activity executions.
+func DeserializeExportedExecutions(bytes []byte) (*export.ExportedExecutions, error) {
+	var executions export.ExportedExecutions
+	if err := proto.Unmarshal(bytes, &executions); err != nil {
 		return nil, fmt.Errorf("failed to decode export file: %w", err)
 	}
 
-	return &workflows, nil
+	return &executions, nil
 }
 
 // FormatWorkflow converts an exported workflow execution into a friendly, human-readable string
@@ -33,6 +26,30 @@ func FormatWorkflow(workflow *export.WorkflowExecution) string {
 		EmitDefaultValues: true,
 	}
 	return pbMarshaler.Format(workflow)
+}
+
+// FormatActivity converts an exported activity execution into a friendly, human-readable string.
+func FormatActivity(activity *export.ActivityExecution) string {
+	pbMarshaler := protojson.MarshalOptions{
+		Indent:            "\t",
+		EmitDefaultValues: true,
+	}
+	return pbMarshaler.Format(activity)
+}
+
+// GetExportedActivityInformation returns a string containing the activity ID, run ID, and activity type.
+func GetExportedActivityInformation(activity *export.ActivityExecution) (string, error) {
+	execution := activity.GetActivity()
+	if execution == nil {
+		return "", fmt.Errorf("activity execution is nil")
+	}
+
+	info := execution.GetInfo()
+	if info == nil {
+		return "", fmt.Errorf("activity execution information is nil")
+	}
+
+	return fmt.Sprintf("ActivityID: %s, RunID: %s, ActivityType: %s", info.GetActivityId(), info.GetRunId(), info.GetActivityType().GetName()), nil
 }
 
 // GetExportedWorkflowInformation returns a string containing the workflow ID, run ID, and workflow type

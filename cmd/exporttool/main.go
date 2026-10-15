@@ -21,15 +21,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	workflows, err := export.DeserializeExportedWorkflows(bytes)
+	executions, err := export.DeserializeExportedExecutions(bytes)
 	if err != nil {
-		fmt.Printf("error extracting workflow histories: %v\r\n", err)
+		fmt.Printf("error extracting executions: %v\r\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("Successfully deserialized %d workflows \r\n", len(workflows.Items))
+	fmt.Printf("Successfully deserialized %d workflows and %d activities \r\n", len(executions.Workflows), len(executions.Activities))
 
-	for _, workflow := range workflows.Items {
+	for _, workflow := range executions.Workflows {
 		info, err := export.GetExportedWorkflowInformation(workflow)
 		if err != nil {
 			fmt.Printf("error extracting workflow information: %v\r\n", err)
@@ -39,6 +39,20 @@ func main() {
 		fmt.Println(info)
 
 		fmt.Println(export.FormatWorkflow(workflow))
+		fmt.Println("----------------------------------------------------------")
+		fmt.Println()
+	}
+
+	for _, activity := range executions.Activities {
+		info, err := export.GetExportedActivityInformation(activity)
+		if err != nil {
+			fmt.Printf("error extracting activity information: %v\r\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Println(info)
+
+		fmt.Println(export.FormatActivity(activity))
 		fmt.Println("----------------------------------------------------------")
 		fmt.Println()
 	}
