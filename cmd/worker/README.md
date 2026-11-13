@@ -33,11 +33,14 @@ Parameters:
 - `cert.pem`, `cert.key` are the certificate-key pair to use when connecting to the Temporal Cloud namespace using MTLS auth. For more information on how to use mtls in Temporal Cloud refer to the [certificates documentation](https://docs.temporal.io/cloud/certificates).
 
 ### Step 3: Run workflows
-Run a workflow using `tctl` or `temporal` cli. 
+Run a workflow using the `temporal` cli. 
 
 For example to invoke `get-users` workflow for a worker connected to a local temporal instance, run:
 ```
-tctl wf start --tq demo --wt tmprlcloud-wf.get-users -i '{}'
+temporal workflow start \
+  --task-queue demo \
+  --type tmprlcloud-wf.get-users \
+  --input '{}'
 ```
 
 ## Workflows Supported
